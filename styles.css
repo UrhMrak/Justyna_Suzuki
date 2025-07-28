@@ -776,6 +776,7 @@ body {
   /* More space between navbar and hero content on mobile */
   .hero {
     padding-top: 100px;
+    padding-bottom: 2rem;
   }
 
   .hero-text h1 {
