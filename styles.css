@@ -296,10 +296,6 @@ body {
   opacity: 1 !important;
 }
 
-.about-image img:hover {
-  transform: translateY(-5px);
-}
-
 /* Classes Section */
 .classes {
   padding: 100px 0;
