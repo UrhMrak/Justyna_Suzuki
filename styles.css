@@ -900,3 +900,254 @@ body {
     scroll-behavior: smooth;
   }
 }
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+  color: #333;
+}
+
+.modal h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+.login-message {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.login-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.login-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Admin Controls */
+.admin-controls {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-button {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.admin-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+}
+
+/* Admin Actions */
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.admin-action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.edit-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #2563eb;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+/* Editable Elements */
+.editable {
+  transition: all 0.3s ease;
+}
+
+.editable[contenteditable="true"] {
+  background-color: #f3f4f6;
+  border: 2px dashed #8b5cf6;
+  border-radius: 5px;
+  padding: 0.25rem;
+  outline: none;
+}
+
+.editable[contenteditable="true"]:focus {
+  background-color: #e5e7eb;
+  border-color: #7c3aed;
+}
+
+/* Character limit warning for level elements */
+.class-level[contenteditable="true"] {
+  position: relative;
+}
+
+.class-level[contenteditable="true"]::after {
+  content: attr(data-char-count) "/10";
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 0.7rem;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.class-level[contenteditable="true"]:focus::after {
+  opacity: 1;
+}
+
+.class-level[contenteditable="true"][data-char-count="10"]::after {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* Footer Logo Cursor */
+#footerLogo {
+  cursor: pointer;
+}
+
+/* Logout Button */
+.logout-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1500;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.logout-btn i {
+  font-size: 1rem;
+}
+
+.logout-btn span {
+  font-weight: 500;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 20% auto;
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .admin-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .admin-action-btn {
+    width: 100%;
+  }
+
+  .logout-button {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .logout-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .logout-btn span {
+    display: none;
+  }
+
+  .logout-btn i {
+    font-size: 1.1rem;
+  }
+}

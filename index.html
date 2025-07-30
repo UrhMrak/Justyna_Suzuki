@@ -129,83 +129,116 @@
     <section id="classes" class="classes">
       <div class="container">
         <h2 class="section-title">Our Classes</h2>
-        <div class="classes-grid">
-          <div class="class-card">
+        <div class="admin-controls" id="adminControls" style="display: none">
+          <button id="addClassBtn" class="admin-button">Add New Class</button>
+        </div>
+        <div class="classes-grid" id="classesGrid">
+          <div class="class-card" data-class-id="1">
             <div class="class-header">
-              <h3>Beginner</h3>
-              <span class="class-level">Level 1</span>
+              <h3 class="editable" contenteditable="false">Beginner</h3>
+              <span class="class-level editable" contenteditable="false"
+                >Level 1</span
+              >
             </div>
             <div class="class-details">
               <div class="detail">
                 <i class="fas fa-calendar"></i>
-                <span>Mondays</span>
+                <span class="editable" contenteditable="false">Mondays</span>
               </div>
               <div class="detail">
                 <i class="fas fa-clock"></i>
-                <span>16:00 - 17:00</span>
+                <span class="editable" contenteditable="false"
+                  >16:00 - 17:00</span
+                >
               </div>
               <div class="detail">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>Music Studio Downtown Reykjavik</span>
+                <span class="editable" contenteditable="false"
+                  >Music Studio Downtown Reykjavik</span
+                >
               </div>
             </div>
-            <p class="class-description">
+            <p class="class-description editable" contenteditable="false">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
             <a href="#contact" class="class-button">Enroll Now</a>
+            <div class="admin-actions" style="display: none">
+              <button class="edit-btn admin-action-btn">Edit</button>
+              <button class="delete-btn admin-action-btn">Delete</button>
+            </div>
           </div>
 
-          <div class="class-card">
+          <div class="class-card" data-class-id="2">
             <div class="class-header">
-              <h3>Intermediate</h3>
-              <span class="class-level">Level 2</span>
+              <h3 class="editable" contenteditable="false">Intermediate</h3>
+              <span class="class-level editable" contenteditable="false"
+                >Level 2</span
+              >
             </div>
             <div class="class-details">
               <div class="detail">
                 <i class="fas fa-calendar"></i>
-                <span>Tuesdays</span>
+                <span class="editable" contenteditable="false">Tuesdays</span>
               </div>
               <div class="detail">
                 <i class="fas fa-clock"></i>
-                <span>17:00 - 18:00</span>
+                <span class="editable" contenteditable="false"
+                  >17:00 - 18:00</span
+                >
               </div>
               <div class="detail">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>Music Studio Downtown Reykjavik</span>
+                <span class="editable" contenteditable="false"
+                  >Music Studio Downtown Reykjavik</span
+                >
               </div>
             </div>
-            <p class="class-description">
+            <p class="class-description editable" contenteditable="false">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
             <a href="#contact" class="class-button">Enroll Now</a>
+            <div class="admin-actions" style="display: none">
+              <button class="edit-btn admin-action-btn">Edit</button>
+              <button class="delete-btn admin-action-btn">Delete</button>
+            </div>
           </div>
 
-          <div class="class-card">
+          <div class="class-card" data-class-id="3">
             <div class="class-header">
-              <h3>Advanced</h3>
-              <span class="class-level">Level 3</span>
+              <h3 class="editable" contenteditable="false">Advanced</h3>
+              <span class="class-level editable" contenteditable="false"
+                >Level 3</span
+              >
             </div>
             <div class="class-details">
               <div class="detail">
                 <i class="fas fa-calendar"></i>
-                <span>Fridays</span>
+                <span class="editable" contenteditable="false">Fridays</span>
               </div>
               <div class="detail">
                 <i class="fas fa-clock"></i>
-                <span>15:00 - 16:00</span>
+                <span class="editable" contenteditable="false"
+                  >15:00 - 16:00</span
+                >
               </div>
               <div class="detail">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>Music Studio Downtown Reykjavik</span>
+                <span class="editable" contenteditable="false"
+                  >Music Studio Downtown Reykjavik</span
+                >
               </div>
             </div>
-            <p class="class-description">
+            <p class="class-description editable" contenteditable="false">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
             <a href="#contact" class="class-button">Enroll Now</a>
+            <div class="admin-actions" style="display: none">
+              <button class="edit-btn admin-action-btn">Edit</button>
+              <button class="delete-btn admin-action-btn">Delete</button>
+            </div>
           </div>
         </div>
       </div>
@@ -391,12 +424,50 @@
       </div>
     </section>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <button type="submit" class="submit-button">Login</button>
+        </form>
+        <div id="loginMessage" class="login-message"></div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div id="logoutButton" class="logout-button" style="display: none">
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
         <div class="footer-content">
           <div class="footer-section">
-            <div class="footer-logo">
+            <div class="footer-logo" id="footerLogo">
               <img src="logo.svg" alt="Justyna Bidler Logo" />
             </div>
             <p class="footer-text">
