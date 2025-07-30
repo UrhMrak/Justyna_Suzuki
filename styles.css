@@ -570,6 +570,10 @@ body {
   font-size: 0.9rem;
   padding-bottom: 15px;
 }
+.footer-text.small {
+  font-size: 0.7rem;
+  padding-bottom: 15px;
+}
 
 .footer-content {
   display: grid;
