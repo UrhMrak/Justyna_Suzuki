@@ -10,7 +10,7 @@ html {
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "Metropolis", sans-serif;
   line-height: 1.6;
   color: #333;
   overflow-x: hidden;
@@ -77,12 +77,14 @@ body {
   font-weight: 500;
   transition: color 0.3s ease;
   position: relative;
+  text-transform: uppercase;
+  font-size: 1.2rem;
 }
 
 /* Larger screens - bigger navbar text */
 @media (min-width: 1200px) {
   .nav-link {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .nav-menu {
@@ -614,6 +616,19 @@ body {
   list-style: none;
 }
 
+/* Center content for Quick Links and Contact Info sections */
+.footer-section:nth-child(2),
+.footer-section:nth-child(3) {
+  text-align: center;
+}
+
+.footer-section:nth-child(2) ul,
+.footer-section:nth-child(3) .footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .footer-section ul li {
   margin-bottom: 0.5rem;
 }
@@ -799,7 +814,7 @@ body {
   }
 
   .nav-link {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
 
   .hamburger .bar {
