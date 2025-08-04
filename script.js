@@ -7,6 +7,19 @@ hamburger.addEventListener("click", () => {
   navMenu.classList.toggle("active");
 });
 
+// Navbar logo click to go home
+const navLogo = document.querySelector(".nav-logo");
+navLogo.addEventListener("click", () => {
+  const homeSection = document.querySelector("#home");
+  if (homeSection) {
+    const offsetTop = homeSection.offsetTop - 80; // Account for fixed navbar
+    window.scrollTo({
+      top: offsetTop,
+      behavior: "smooth",
+    });
+  }
+});
+
 // Close mobile menu when clicking on a link
 document.querySelectorAll(".nav-link").forEach((n) =>
   n.addEventListener("click", () => {
@@ -229,6 +242,16 @@ loginForm.addEventListener("submit", (e) => {
 
       // Enable admin features
       enableAdminFeatures();
+
+      // Scroll to classes section
+      const classesSection = document.querySelector("#classes");
+      if (classesSection) {
+        const offsetTop = classesSection.offsetTop - 80; // Account for fixed navbar
+        window.scrollTo({
+          top: offsetTop,
+          behavior: "smooth",
+        });
+      }
     }, 1500);
   } else {
     loginMessage.textContent = "Invalid username or password!";
