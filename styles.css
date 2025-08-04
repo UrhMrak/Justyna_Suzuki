@@ -145,6 +145,10 @@ body {
   align-items: center;
 }
 
+.hero-image {
+  justify-self: end;
+}
+
 .hero-text h1 {
   font-size: 3.5rem;
   font-weight: 700;
