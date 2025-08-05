@@ -30,7 +30,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
   z-index: 1000;
-  padding: 0.5rem 0;
+  padding: 8px 0;
   transition: all 0.3s ease;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 }
@@ -68,7 +68,7 @@ body {
 .nav-menu {
   display: flex;
   list-style: none;
-  gap: 2rem;
+  gap: 32px;
 }
 
 .nav-link {
@@ -78,17 +78,17 @@ body {
   transition: color 0.3s ease;
   position: relative;
   text-transform: uppercase;
-  font-size: 1.2rem;
+  font-size: 19px;
 }
 
 /* Larger screens - bigger navbar text */
 @media (min-width: 1200px) {
   .nav-link {
-    font-size: 1.2rem;
+    font-size: 19px;
   }
 
   .nav-menu {
-    gap: 2.5rem;
+    gap: 40px;
   }
 }
 
@@ -141,7 +141,7 @@ body {
   padding: 0 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6rem;
+  gap: 96px;
   align-items: center;
 }
 
@@ -150,29 +150,29 @@ body {
 }
 
 .hero-text h1 {
-  font-size: 3.5rem;
+  font-size: 56px;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
   line-height: 1.2;
 }
 
 .hero-text h2 {
-  font-size: 2rem;
+  font-size: 32px;
   font-weight: 300;
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
   opacity: 0.9;
 }
 
 .hero-text p {
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
+  font-size: 18px;
+  margin-bottom: 32px;
   opacity: 0.9;
   line-height: 1.8;
 }
 
 .cta-button {
   display: inline-block;
-  padding: 1rem 2rem;
+  padding: 16px 32px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   text-decoration: none;
@@ -240,9 +240,9 @@ body {
 /* Section Titles */
 .section-title {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 40px;
   font-weight: 700;
-  margin-bottom: 3rem;
+  margin-bottom: 48px;
   color: #333;
   position: relative;
 }
@@ -717,8 +717,48 @@ body {
   color: #cbd5e1;
 }
 
+/* Medium screens (768px - 1200px) */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .navbar {
+    padding: 6px 0;
+  }
+
+  .nav-logo img {
+    height: 100px;
+    max-width: 200px;
+  }
+
+  .nav-link {
+    font-size: 16px;
+  }
+
+  .nav-menu {
+    gap: 24px;
+  }
+
+  .hero {
+    padding-top: 120px;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 3px 0;
+  }
+
+  .nav-logo img {
+    height: 40px;
+  }
+
+  .nav-link {
+    font-size: 16px;
+  }
+
+  .nav-menu {
+    gap: 16px;
+  }
+
   .hamburger {
     display: flex;
   }
@@ -747,6 +787,10 @@ body {
     font-size: 1.2rem;
     padding: 1rem 0;
     margin: 0.5rem 0;
+  }
+
+  .hero {
+    padding-top: 140px;
   }
 
   .hero-content {
