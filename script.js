@@ -259,6 +259,31 @@ loginForm.addEventListener("submit", (e) => {
   }
 });
 
+// Privacy Policy Modal Functionality
+const privacyModal = document.getElementById("privacyPolicyModal");
+const privacyBtn = document.getElementById("privacyPolicyBtn");
+const closePrivacyBtn = document.querySelector(".close-privacy");
+
+// Open privacy policy modal
+privacyBtn.addEventListener("click", () => {
+  privacyModal.style.display = "block";
+  document.body.style.overflow = "hidden";
+});
+
+// Close privacy policy modal when X is clicked
+closePrivacyBtn.addEventListener("click", () => {
+  privacyModal.style.display = "none";
+  document.body.style.overflow = "auto";
+});
+
+// Close privacy policy modal when clicking outside
+window.addEventListener("click", (event) => {
+  if (event.target === privacyModal) {
+    privacyModal.style.display = "none";
+    document.body.style.overflow = "auto";
+  }
+});
+
 // Check if user is already logged in
 function checkLoginStatus() {
   if (localStorage.getItem("isLoggedIn") === "true") {
@@ -340,7 +365,6 @@ function addNewClass() {
   newClassCard.innerHTML = `
     <div class="class-header">
       <h3 class="editable" contenteditable="false">New Class</h3>
-      <span class="class-level editable" contenteditable="false">Level 1</span>
     </div>
     <div class="class-details">
       <div class="detail">
@@ -391,37 +415,6 @@ function addClassEventListeners(classCard) {
       // Enable editing for all editable elements
       editableElements.forEach((element) => {
         element.setAttribute("contenteditable", "true");
-
-        // Add character limit for level elements
-        if (element.classList.contains("class-level")) {
-          // Store handlers as properties for later removal
-          element._inputHandler = function () {
-            if (this.textContent.length > 10) {
-              this.textContent = this.textContent.substring(0, 10);
-            }
-            // Update character count
-            this.setAttribute("data-char-count", this.textContent.length);
-          };
-
-          element._pasteHandler = function (e) {
-            e.preventDefault();
-            const pastedText = (
-              e.clipboardData || window.clipboardData
-            ).getData("text");
-            const currentText = this.textContent;
-            const newText = currentText + pastedText;
-            if (newText.length <= 10) {
-              this.textContent = newText;
-              this.setAttribute("data-char-count", this.textContent.length);
-            }
-          };
-
-          element.addEventListener("input", element._inputHandler);
-          element.addEventListener("paste", element._pasteHandler);
-
-          // Initialize character count
-          element.setAttribute("data-char-count", element.textContent.length);
-        }
       });
     } else {
       // Save changes
@@ -434,12 +427,6 @@ function addClassEventListeners(classCard) {
       // Disable editing for all editable elements
       editableElements.forEach((element) => {
         element.setAttribute("contenteditable", "false");
-
-        // Remove event listeners for level elements
-        if (element.classList.contains("class-level")) {
-          element.removeEventListener("input", element._inputHandler);
-          element.removeEventListener("paste", element._pasteHandler);
-        }
       });
     }
   });
