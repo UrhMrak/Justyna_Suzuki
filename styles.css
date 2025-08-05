@@ -56,13 +56,12 @@ body {
   width: auto;
   max-width: 250px;
   object-fit: contain;
-  transition: transform 0.3s ease;
   display: block;
   opacity: 1 !important;
 }
 
 .nav-logo img:hover {
-  transform: scale(1.05);
+  cursor: pointer;
 }
 
 .nav-menu {
@@ -125,12 +124,25 @@ body {
   transition: 0.3s;
 }
 
+/* Hamburger to cross transformation */
+.hamburger.active .bar:nth-child(1) {
+  transform: rotate(-45deg) translate(-6px, 6px);
+}
+
+.hamburger.active .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .bar:nth-child(3) {
+  transform: rotate(45deg) translate(-6px, -6px);
+}
+
 /* Hero Section */
 .hero {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #7088f1 0%, #613c86 100%);
   color: white;
   padding-top: 50px;
 }
@@ -528,10 +540,10 @@ body {
 }
 
 .contact-social-link:hover {
-  background: white;
   color: #8b5cf6;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+  transition: all 0.3s ease;
 }
 
 .contact-map {
@@ -905,11 +917,6 @@ body {
     gap: 2rem;
   }
 
-  .about-stats {
-    flex-direction: row;
-    justify-content: space-around;
-  }
-
   .classes-grid {
     grid-template-columns: 1fr;
   }
@@ -1052,14 +1059,6 @@ body {
 
   .footer-section ul li a {
     font-size: 0.9rem;
-  }
-
-  .about-stats {
-    flex-direction: column;
-  }
-
-  .stat {
-    padding: 1.5rem;
   }
 }
 
