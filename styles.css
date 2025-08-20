@@ -5,6 +5,11 @@
   box-sizing: border-box;
 }
 
+.bold {
+  font-weight: 700 !important;
+  font-size: 1.1em !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -30,7 +35,7 @@ body {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
   z-index: 1000;
-  padding: 8px 0;
+  padding: 4px 0;
   transition: all 0.3s ease;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 }
@@ -52,9 +57,9 @@ body {
 }
 
 .nav-logo img {
-  height: 120px;
+  height: 80px;
   width: auto;
-  max-width: 250px;
+  max-width: 200px;
   object-fit: contain;
   display: block;
   opacity: 1 !important;
@@ -298,6 +303,28 @@ body {
   line-height: 1.8;
 }
 
+.about-text h4 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #8b5cf6;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.suzuki-principles {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.5rem 0;
+}
+
+.suzuki-principles li {
+  background: #f8fafc;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+  border-radius: 10px;
+  border-left: 4px solid #8b5cf6;
+  line-height: 1.6;
+}
+
 .about-image {
   display: flex;
   justify-content: center;
@@ -392,10 +419,103 @@ body {
   box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
 }
 
+/* Pricing Section */
+.pricing {
+  padding: 100px 0;
+  background: #f8fafc;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #f1f5f9;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.pricing-card.featured:hover {
+  transform: translateY(-10px);
+}
+
+.pricing-header {
+  margin-bottom: 1.5rem;
+}
+
+.pricing-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  margin-bottom: 0.5rem;
+}
+
+.savings {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.pricing-description {
+  margin-bottom: 2rem;
+  flex-grow: 1;
+}
+
+.pricing-description p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.pricing-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #8b5cf6, #667eea);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.pricing-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
 /* FAQ Section */
 .faq {
   padding: 100px 0;
-  background: #f8fafc;
+  background: white;
 }
 
 .faq-container {
@@ -465,7 +585,7 @@ body {
 /* Contact Section */
 .contact {
   padding: 100px 0;
-  background: white;
+  background: #f8fafc;
 }
 
 .contact-content {
@@ -918,6 +1038,19 @@ body {
 
   .classes-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .pricing-card.featured {
+    transform: none;
+  }
+
+  .pricing-card.featured:hover {
+    transform: translateY(-10px);
   }
 
   .contact-content {
