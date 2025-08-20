@@ -1443,3 +1443,83 @@ body {
     font-size: 1.1rem;
   }
 }
+
+/* Calendar Modal */
+.calendar-modal {
+  width: 95%;
+  max-width: 1100px;
+  margin: 5% auto;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.calendar-modal h2 {
+  margin-bottom: 1rem;
+}
+
+.calendar-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.calendar-month {
+  background: #f8fafc;
+  border: 2px solid #8b5cf6;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.calendar-month h4 {
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.calendar-dates {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.calendar-dates li {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-dates li .date-text[contenteditable="true"] {
+  outline: 2px solid #8b5cf6;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.calendar-admin-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.close-calendar {
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .calendar-months {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1200px) {
+  .calendar-modal {
+    max-width: 1200px;
+  }
+}

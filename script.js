@@ -461,3 +461,144 @@ document.addEventListener("DOMContentLoaded", () => {
   // Check login status on page load
   checkLoginStatus();
 });
+
+// Classes Calendar Modal logic
+(function setupClassesCalendarModal() {
+  const modal = document.getElementById("classesCalendarModal");
+  if (!modal) return;
+  const openButtons = document.querySelectorAll(".open-calendar");
+  const closeBtn = modal.querySelector(".close-calendar");
+  const monthsContainer = document.getElementById("calendarMonths");
+  const editBtn = document.getElementById("calendarEditBtn");
+
+  function monthKey(date) {
+    return `${date.getFullYear()}-${date.getMonth()}`;
+  }
+
+  function loadMonthData(key) {
+    try {
+      return JSON.parse(localStorage.getItem(`months-${key}`) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  function saveMonthData(key, list) {
+    localStorage.setItem(`months-${key}`, JSON.stringify(list));
+  }
+
+  function defaultMonthDates(date) {
+    // Provide 4 simple placeholders by default
+    return ["TBD", "TBD", "TBD", "TBD"];
+  }
+
+  function renderMonths() {
+    monthsContainer.innerHTML = "";
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const key = monthKey(dt);
+      let monthDates = loadMonthData(key);
+      if (!monthDates) {
+        monthDates = defaultMonthDates(dt);
+        saveMonthData(key, monthDates);
+      }
+      // Ensure exactly 4 items
+      if (monthDates.length > 4) monthDates = monthDates.slice(0, 4);
+      while (monthDates.length < 4) monthDates.push("TBD");
+      saveMonthData(key, monthDates);
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "calendar-month";
+
+      const title = document.createElement("h4");
+      title.textContent = dt.toLocaleString(undefined, {
+        month: "long",
+        year: "numeric",
+      });
+
+      const list = document.createElement("ul");
+      list.className = "calendar-dates";
+
+      monthDates.forEach((iso, idx) => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.className = "date-text";
+        span.textContent = iso;
+        span.setAttribute("data-index", idx.toString());
+
+        li.appendChild(span);
+        list.appendChild(li);
+      });
+
+      wrapper.appendChild(title);
+      wrapper.appendChild(list);
+      monthsContainer.appendChild(wrapper);
+    }
+
+    // Toggle contenteditable on spans when editing
+    const editing =
+      editBtn?.dataset.mode === "editing" &&
+      localStorage.getItem("isLoggedIn") === "true";
+    monthsContainer.querySelectorAll(".date-text").forEach((el) => {
+      el.setAttribute("contenteditable", editing ? "true" : "false");
+      if (editing) {
+        el.addEventListener(
+          "blur",
+          (e) => {
+            const span = e.target;
+            const newVal = (span.textContent || "").trim();
+            // Save free-form text without validation
+            const wrapper = span.closest(".calendar-month");
+            if (!wrapper) return;
+            const title = wrapper.querySelector("h4")?.textContent || "";
+            const dt = new Date(title);
+            const key = monthKey(dt);
+            const list = loadMonthData(key) || defaultMonthDates(dt);
+            const idx = parseInt(span.getAttribute("data-index") || "0", 10);
+            list[idx] = newVal || "TBD";
+            saveMonthData(key, list);
+          },
+          { once: true }
+        );
+      }
+    });
+  }
+
+  function openModal() {
+    modal.style.display = "block";
+    document.body.style.overflow = "hidden";
+    // Show edit button only when logged in
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const adminBar = modal.querySelector(".calendar-admin-actions");
+    if (adminBar) adminBar.style.display = loggedIn ? "flex" : "none";
+    editBtn.dataset.mode = "view";
+    editBtn.textContent = "Edit";
+    renderMonths();
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+  }
+
+  openButtons.forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal();
+    })
+  );
+  closeBtn?.addEventListener("click", closeModal);
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  editBtn?.addEventListener("click", () => {
+    if (localStorage.getItem("isLoggedIn") !== "true") return;
+    const mode = editBtn.dataset.mode === "editing" ? "view" : "editing";
+    editBtn.dataset.mode = mode;
+    editBtn.textContent = mode === "editing" ? "Save" : "Edit";
+    renderMonths();
+  });
+})();

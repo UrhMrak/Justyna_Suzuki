@@ -226,7 +226,9 @@
               This is a class for children with parents. Everyone is welcome to
               join.
             </p>
-            <a href="#contact" class="class-button">More calendar info</a>
+            <a href="#" class="class-button open-calendar"
+              >More calendar info</a
+            >
             <div class="admin-actions" style="display: none">
               <button class="edit-btn admin-action-btn">Edit</button>
               <button class="delete-btn admin-action-btn">Delete</button>
@@ -259,7 +261,9 @@
               This is a class for children with parents. Everyone is welcome to
               join.
             </p>
-            <a href="#contact" class="class-button">More calendar info</a>
+            <a href="#" class="class-button open-calendar"
+              >More calendar info</a
+            >
             <div class="admin-actions" style="display: none">
               <button class="edit-btn admin-action-btn">Edit</button>
               <button class="delete-btn admin-action-btn">Delete</button>
@@ -700,6 +704,18 @@
             If you have any questions about this Privacy Policy, please contact
             us at suzukiece.reykjavik@gmail.com
           </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classes Calendar Modal -->
+    <div id="classesCalendarModal" class="modal">
+      <div class="modal-content calendar-modal">
+        <span class="close-calendar">&times;</span>
+        <h2>All our classes:</h2>
+        <div class="calendar-months" id="calendarMonths"></div>
+        <div class="calendar-admin-actions" style="display: none">
+          <button id="calendarEditBtn" class="admin-action-btn">Edit</button>
         </div>
       </div>
     </div>
