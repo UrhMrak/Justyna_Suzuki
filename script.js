@@ -76,42 +76,52 @@ window.addEventListener("scroll", () => {
 });
 
 // Form submission handling
-const contactForm = document.querySelector(".contact-form");
+// EmailJS Configuration
+emailjs.init("clul3jbzWuRkHzJCU");
 
-contactForm.addEventListener("submit", function (e) {
+// Contact form submission with EmailJS
+document.getElementById("contactForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  // Get form data
-  const formData = new FormData(this);
-  const data = Object.fromEntries(formData);
+  const submitBtn = document.getElementById("submitBtn");
+  const originalText = submitBtn.textContent;
 
-  // Simple validation
-  if (!data.name || !data.email || !data.message) {
-    alert("Please fill in all required fields.");
-    return;
-  }
+  // Show loading state
+  submitBtn.textContent = "Sending...";
+  submitBtn.disabled = true;
 
-  // Email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    alert("Please enter a valid email address.");
-    return;
-  }
+  // Prepare template parameters
+  const templateParams = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    subject: document.getElementById("subject").value,
+    message: document.getElementById("message").value,
+  };
 
-  // Simulate form submission
-  const submitButton = this.querySelector(".submit-button");
-  const originalText = submitButton.textContent;
+  // Debug logging
+  console.log("Template parameters being sent:", templateParams);
+  console.log("Subject value:", templateParams.subject);
+  console.log("Subject length:", templateParams.subject.length);
 
-  submitButton.textContent = "Sending...";
-  submitButton.disabled = true;
-
-  // Simulate API call
-  setTimeout(() => {
-    alert("Thank you for your message! We will get back to you soon.");
-    this.reset();
-    submitButton.textContent = originalText;
-    submitButton.disabled = false;
-  }, 2000);
+  // Send email using EmailJS
+  emailjs.send("service_9ozipbl", "template_cyuy68p", templateParams).then(
+    function (response) {
+      // Success
+      alert("Thank you for your message! We will get back to you soon.");
+      document.getElementById("contactForm").reset();
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    },
+    function (error) {
+      // Error
+      alert(
+        "Sorry, there was an error sending your message. Please try again."
+      );
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  );
 });
 
 // Intersection Observer for animations
@@ -488,8 +498,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function defaultMonthDates(date) {
-    // Provide 4 simple placeholders by default
-    return ["TBD", "TBD", "TBD", "TBD"];
+    // Provide 5 completely empty entries by default
+    return [];
   }
 
   function renderMonths() {
@@ -498,15 +508,11 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < 12; i++) {
       const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const key = monthKey(dt);
-      let monthDates = loadMonthData(key);
-      if (!monthDates) {
-        monthDates = defaultMonthDates(dt);
-        saveMonthData(key, monthDates);
-      }
-      // Ensure exactly 4 items
-      if (monthDates.length > 4) monthDates = monthDates.slice(0, 4);
-      while (monthDates.length < 4) monthDates.push("TBD");
-      saveMonthData(key, monthDates);
+      // Load existing data or start empty
+      let monthDates = loadMonthData(key) || [];
+      // Ensure exactly 5 items
+      if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
+      while (monthDates.length < 5) monthDates.push("");
 
       const wrapper = document.createElement("div");
       wrapper.className = "calendar-month";
@@ -520,17 +526,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const list = document.createElement("ul");
       list.className = "calendar-dates";
 
-      monthDates.forEach((iso, idx) => {
+      // Always show 5 list items, but only display text for user-added content
+      for (let idx = 0; idx < 5; idx++) {
         const li = document.createElement("li");
 
         const span = document.createElement("span");
         span.className = "date-text";
-        span.textContent = iso;
+        // Only show text if user has actually added content
+        span.textContent = monthDates[idx] || ""; // Show user content or empty
         span.setAttribute("data-index", idx.toString());
 
         li.appendChild(span);
         list.appendChild(li);
-      });
+      }
 
       wrapper.appendChild(title);
       wrapper.appendChild(list);
@@ -557,7 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const key = monthKey(dt);
             const list = loadMonthData(key) || defaultMonthDates(dt);
             const idx = parseInt(span.getAttribute("data-index") || "0", 10);
-            list[idx] = newVal || "TBD";
+            list[idx] = newVal || "";
             saveMonthData(key, list);
           },
           { once: true }

@@ -1464,7 +1464,7 @@ body {
 }
 
 .calendar-month {
-  background: #f8fafc;
+  background: #fff;
   border: 2px solid #8b5cf6;
   border-radius: 12px;
   padding: 1rem;
@@ -1473,6 +1473,9 @@ body {
 .calendar-month h4 {
   margin-bottom: 0.75rem;
   color: #333;
+  font-weight: 900 !important;
+  font-size: 1.3em;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-dates {
@@ -1485,8 +1488,8 @@ body {
 }
 
 .calendar-dates li {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: transparent;
+  border: none;
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
