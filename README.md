@@ -67,3 +67,4 @@ The GitHub Actions workflow:
 - Source files remain in the root directory for development
 - All deployments go through the `main` branch
 - FTP credentials are stored securely as GitHub secrets
+# Test deployment
