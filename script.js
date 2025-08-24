@@ -235,7 +235,7 @@ loginForm.addEventListener("submit", (e) => {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  if (username === "admin" && password === "admin123") {
+  if (username === "JustynaSuzukiece" && password === "qtmc!KetfZT49vG") {
     loginMessage.textContent = "Login successful!";
     loginMessage.className = "login-message success";
 
