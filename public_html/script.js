@@ -229,42 +229,61 @@ window.addEventListener("click", (event) => {
 });
 
 // Handle login form submission
-loginForm.addEventListener("submit", (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  if (username === "admin" && password === "admin123") {
-    loginMessage.textContent = "Login successful!";
-    loginMessage.className = "login-message success";
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
 
-    // Store login state
-    localStorage.setItem("isLoggedIn", "true");
+    const result = await response.json();
 
-    // Close modal after successful login
-    setTimeout(() => {
-      modal.style.display = "none";
-      document.body.style.overflow = "auto";
-      loginMessage.textContent = "";
-      loginMessage.className = "login-message";
-      loginForm.reset();
+    if (result.success) {
+      // Store authentication token
+      authToken = result.token;
+      localStorage.setItem("authToken", result.token);
+      localStorage.setItem("isLoggedIn", "true");
 
-      // Enable admin features
-      enableAdminFeatures();
+      loginMessage.textContent = "Login successful!";
+      loginMessage.className = "login-message success";
 
-      // Scroll to classes section
-      const classesSection = document.querySelector("#classes");
-      if (classesSection) {
-        const offsetTop = classesSection.offsetTop - 80; // Account for fixed navbar
-        window.scrollTo({
-          top: offsetTop,
-          behavior: "smooth",
-        });
-      }
-    }, 1500);
-  } else {
-    loginMessage.textContent = "Invalid username or password!";
+      // Close modal after successful login
+      setTimeout(() => {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+        loginMessage.textContent = "";
+        loginMessage.className = "login-message";
+        loginForm.reset();
+
+        // Enable admin features
+        enableAdminFeatures();
+
+        // Scroll to classes section
+        const classesSection = document.querySelector("#classes");
+        if (classesSection) {
+          const offsetTop = classesSection.offsetTop - 80; // Account for fixed navbar
+          window.scrollTo({
+            top: offsetTop,
+            behavior: "smooth",
+          });
+        }
+      }, 1500);
+    } else {
+      loginMessage.textContent =
+        result.message || "Invalid username or password!";
+      loginMessage.className = "login-message error";
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    loginMessage.textContent = "Login failed. Please try again.";
     loginMessage.className = "login-message error";
   }
 });
@@ -296,8 +315,20 @@ window.addEventListener("click", (event) => {
 
 // Check if user is already logged in
 function checkLoginStatus() {
-  if (localStorage.getItem("isLoggedIn") === "true") {
-    enableAdminFeatures();
+  const storedToken = localStorage.getItem("authToken");
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  if (isLoggedIn && storedToken) {
+    // Validate token with server
+    validateToken(storedToken).then((isValid) => {
+      if (isValid) {
+        authToken = storedToken;
+        enableAdminFeatures();
+      } else {
+        // Token is invalid, clear stored data
+        logout();
+      }
+    });
   } else {
     // Hide logout button if not logged in
     const logoutButton = document.getElementById("logoutButton");
@@ -305,10 +336,26 @@ function checkLoginStatus() {
   }
 }
 
+// Validate token with server
+async function validateToken(token) {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/auth.php?validate=1&token=${encodeURIComponent(token)}`
+    );
+    const result = await response.json();
+    return result.valid;
+  } catch (error) {
+    console.error("Token validation error:", error);
+    return false;
+  }
+}
+
 // Logout functionality
 function logout() {
-  // Clear login state
+  // Clear login state and auth token
   localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("authToken");
+  authToken = null;
 
   // Hide admin features
   const adminControls = document.getElementById("adminControls");
@@ -340,10 +387,13 @@ function logout() {
 
   // Reset editing state
   isEditing = false;
+
+  // Reset classes to default state
+  initializeClasses();
 }
 
 // Enable admin features
-function enableAdminFeatures() {
+async function enableAdminFeatures() {
   const adminControls = document.getElementById("adminControls");
   const adminActions = document.querySelectorAll(".admin-actions");
   const logoutButton = document.getElementById("logoutButton");
@@ -358,52 +408,315 @@ function enableAdminFeatures() {
 
   // Show logout button
   logoutButton.style.display = "block";
+
+  // Ensure classes are loaded and displayed
+  await initializeClasses();
+
+  // Add export/import functionality
+  addDataManagementFeatures();
+}
+
+// Add data management features for admins
+function addDataManagementFeatures() {
+  const adminControls = document.getElementById("adminControls");
+
+  // Create export button
+  const exportBtn = document.createElement("button");
+  exportBtn.className = "admin-button";
+  exportBtn.textContent = "Export Classes";
+  exportBtn.style.marginLeft = "10px";
+  exportBtn.addEventListener("click", exportClasses);
+
+  // Create import button
+  const importBtn = document.createElement("button");
+  importBtn.className = "admin-button";
+  importBtn.textContent = "Import Classes";
+  importBtn.style.marginLeft = "10px";
+  importBtn.addEventListener("click", importClasses);
+
+  // Add buttons to admin controls
+  adminControls.appendChild(exportBtn);
+  adminControls.appendChild(importBtn);
+}
+
+// Export classes data
+async function exportClasses() {
+  const classes = await loadClasses();
+  if (!classes || classes.length === 0) {
+    alert("No classes to export.");
+    return;
+  }
+
+  const dataStr = JSON.stringify(classes, null, 2);
+  const dataBlob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(dataBlob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `suzuki-classes-${
+    new Date().toISOString().split("T")[0]
+  }.json`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// Import classes data
+async function importClasses() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+
+  input.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const importedClasses = JSON.parse(event.target.result);
+
+        if (Array.isArray(importedClasses) && importedClasses.length > 0) {
+          if (
+            confirm(
+              `Import ${importedClasses.length} classes? This will replace current classes.`
+            )
+          ) {
+            const success = await saveClasses(importedClasses);
+            if (success) {
+              renderClasses(importedClasses);
+              alert("Classes imported successfully!");
+            } else {
+              alert("Failed to import classes. Please try again.");
+            }
+          }
+        } else {
+          alert(
+            "Invalid file format. Please select a valid JSON file with classes data."
+          );
+        }
+      } catch (error) {
+        alert("Error reading file. Please ensure it's a valid JSON file.");
+        console.error("Import error:", error);
+      }
+    };
+
+    reader.readAsText(file);
+  });
+
+  input.click();
 }
 
 // Admin functionality for editing classes
 let isEditing = false;
 
-// Add new class functionality
-function addNewClass() {
+// Server API configuration
+const API_BASE_URL = "/api";
+let authToken = null;
+
+// Load classes from server
+async function loadClasses() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/classes.php`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const classes = await response.json();
+    return Array.isArray(classes) ? classes : [];
+  } catch (error) {
+    console.error("Error loading classes from server:", error);
+    // Fallback to default classes
+    return getDefaultClasses();
+  }
+}
+
+// Save classes to server
+async function saveClasses(classes) {
+  if (!authToken) {
+    console.error("No authentication token available");
+    return false;
+  }
+
+  try {
+    // Validate classes data before saving
+    if (!Array.isArray(classes)) {
+      console.error("Invalid classes data: not an array");
+      return false;
+    }
+
+    // Ensure each class has required fields
+    const validClasses = classes.filter((classData) => {
+      return (
+        classData &&
+        typeof classData.id === "string" &&
+        typeof classData.title === "string" &&
+        typeof classData.day === "string" &&
+        typeof classData.time === "string" &&
+        typeof classData.location === "string" &&
+        typeof classData.description === "string"
+      );
+    });
+
+    if (validClasses.length !== classes.length) {
+      console.warn("Some classes were invalid and filtered out");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/classes.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(validClasses),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error("Error saving classes to server:", error);
+    return false;
+  }
+}
+
+// Get default classes (fallback)
+function getDefaultClasses() {
+  return [
+    {
+      id: "1",
+      title: "Suzuki Class 1",
+      day: "Friday",
+      time: "9:00 - 10:00",
+      location: "Allegro Suzuki Music School",
+      description:
+        "This is a class for children with parents. Everyone is welcome to join.",
+    },
+    {
+      id: "2",
+      title: "Suzuki Class 2",
+      day: "Friday",
+      time: "10:15 - 11:15",
+      location: "Allegro Suzuki Music School",
+      description:
+        "This is a class for children with parents. Everyone is welcome to join.",
+    },
+  ];
+}
+
+// Get current classes from DOM
+function getCurrentClassesFromDOM() {
+  const classCards = document.querySelectorAll(".class-card");
+  const classes = [];
+
+  classCards.forEach((card) => {
+    const classId = card.getAttribute("data-class-id");
+    const title = card.querySelector(".class-header h3").textContent;
+    const day = card.querySelector(".detail:nth-child(1) span").textContent;
+    const time = card.querySelector(".detail:nth-child(2) span").textContent;
+    const location = card.querySelector(
+      ".detail:nth-child(3) span"
+    ).textContent;
+    const description = card.querySelector(".class-description").textContent;
+
+    classes.push({
+      id: classId,
+      title,
+      day,
+      time,
+      location,
+      description,
+    });
+  });
+
+  return classes;
+}
+
+// Render classes from data
+function renderClasses(classes) {
   const classesGrid = document.getElementById("classesGrid");
-  const newClassId = Date.now(); // Use timestamp as unique ID
+  classesGrid.innerHTML = "";
 
-  const newClassCard = document.createElement("div");
-  newClassCard.className = "class-card";
-  newClassCard.setAttribute("data-class-id", newClassId);
+  classes.forEach((classData) => {
+    const classCard = document.createElement("div");
+    classCard.className = "class-card";
+    classCard.setAttribute("data-class-id", classData.id);
 
-  newClassCard.innerHTML = `
-    <div class="class-header">
-      <h3 class="editable" contenteditable="false">New Class</h3>
-    </div>
-    <div class="class-details">
-      <div class="detail">
-        <i class="fas fa-calendar"></i>
-        <span class="editable" contenteditable="false">Day</span>
+    classCard.innerHTML = `
+      <div class="class-header">
+        <h3 class="editable" contenteditable="false">${classData.title}</h3>
       </div>
-      <div class="detail">
-        <i class="fas fa-clock"></i>
-        <span class="editable" contenteditable="false">Time</span>
+      <div class="class-details">
+        <div class="detail">
+          <i class="fas fa-calendar"></i>
+          <span class="editable" contenteditable="false">${classData.day}</span>
+        </div>
+        <div class="detail">
+          <i class="fas fa-clock"></i>
+          <span class="editable" contenteditable="false">${classData.time}</span>
+        </div>
+        <div class="detail">
+          <i class="fas fa-map-marker-alt"></i>
+          <span class="editable" contenteditable="false">${classData.location}</span>
+        </div>
       </div>
-      <div class="detail">
-        <i class="fas fa-map-marker-alt"></i>
-        <span class="editable" contenteditable="false">Location</span>
+      <p class="class-description editable" contenteditable="false">
+        ${classData.description}
+      </p>
+      <a href="#" class="class-button open-calendar">More calendar info</a>
+      <div class="admin-actions" style="display: none">
+        <button class="edit-btn admin-action-btn">Edit</button>
+        <button class="delete-btn admin-action-btn">Delete</button>
       </div>
-    </div>
-    <p class="class-description editable" contenteditable="false">
-      Enter class description here.
-    </p>
-    <a href="#contact" class="class-button">Enroll Now</a>
-    <div class="admin-actions" style="display: flex;">
-      <button class="edit-btn admin-action-btn">Edit</button>
-      <button class="delete-btn admin-action-btn">Delete</button>
-    </div>
-  `;
+    `;
 
-  classesGrid.appendChild(newClassCard);
+    classesGrid.appendChild(classCard);
+    addClassEventListeners(classCard);
+  });
+}
 
-  // Add event listeners to new buttons
-  addClassEventListeners(newClassCard);
+// Initialize classes on page load
+async function initializeClasses() {
+  let classes = await loadClasses();
+
+  // If no saved classes, use the default ones
+  if (!classes || classes.length === 0) {
+    classes = getDefaultClasses();
+    // Try to save default classes to server (only if logged in)
+    if (authToken) {
+      await saveClasses(classes);
+    }
+  }
+
+  renderClasses(classes);
+}
+
+// Add new class functionality
+async function addNewClass() {
+  const newClassId = Date.now().toString(); // Use timestamp as unique ID
+
+  const newClass = {
+    id: newClassId,
+    title: "New Class",
+    day: "Day",
+    time: "Time",
+    location: "Location",
+    description: "Enter class description here.",
+  };
+
+  // Load existing classes, add new one, and save
+  let classes = await loadClasses();
+  classes.push(newClass);
+  const success = await saveClasses(classes);
+
+  if (success) {
+    // Re-render all classes
+    renderClasses(classes);
+  } else {
+    alert("Failed to add new class. Please try again.");
+  }
 }
 
 // Add event listeners to class cards
@@ -438,23 +751,59 @@ function addClassEventListeners(classCard) {
       editableElements.forEach((element) => {
         element.setAttribute("contenteditable", "false");
       });
+
+      // Save changes to server
+      const classes = getCurrentClassesFromDOM();
+      saveClasses(classes).then((success) => {
+        if (success) {
+          // Show save confirmation
+          const originalText = editBtn.textContent;
+          editBtn.textContent = "Saved!";
+          editBtn.style.backgroundColor = "#059669";
+          setTimeout(() => {
+            editBtn.textContent = originalText;
+            editBtn.style.backgroundColor = "#3b82f6";
+          }, 1500);
+        } else {
+          // Show error
+          editBtn.textContent = "Error!";
+          editBtn.style.backgroundColor = "#ef4444";
+          setTimeout(() => {
+            editBtn.textContent = originalText;
+            editBtn.style.backgroundColor = "#3b82f6";
+          }, 1500);
+        }
+      });
     }
   });
 
   // Delete functionality
-  deleteBtn.addEventListener("click", () => {
+  deleteBtn.addEventListener("click", async () => {
     if (confirm("Are you sure you want to delete this class?")) {
-      classCard.remove();
+      const classId = classCard.getAttribute("data-class-id");
+
+      // Remove from server
+      let classes = await loadClasses();
+      classes = classes.filter((c) => c.id !== classId);
+      const success = await saveClasses(classes);
+
+      if (success) {
+        // Remove from DOM
+        classCard.remove();
+      } else {
+        alert("Failed to delete class. Please try again.");
+      }
     }
   });
 }
 
 // Add event listeners to existing class cards
-document.addEventListener("DOMContentLoaded", () => {
-  const classCards = document.querySelectorAll(".class-card");
-  classCards.forEach((card) => {
-    addClassEventListeners(card);
-  });
+document.addEventListener("DOMContentLoaded", async () => {
+  // Check login status on page load
+  checkLoginStatus();
+
+  // Initialize classes on page load
+  await initializeClasses();
 
   // Add event listener to add class button
   const addClassBtn = document.getElementById("addClassBtn");
@@ -468,8 +817,15 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutBtn.addEventListener("click", logout);
   }
 
-  // Check login status on page load
-  checkLoginStatus();
+  // Add event listener for beforeunload to warn about unsaved changes
+  window.addEventListener("beforeunload", (e) => {
+    if (isEditing) {
+      e.preventDefault();
+      e.returnValue =
+        "You have unsaved changes. Are you sure you want to leave?";
+      return e.returnValue;
+    }
+  });
 });
 
 // Classes Calendar Modal logic

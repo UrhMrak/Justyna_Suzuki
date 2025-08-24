@@ -1292,6 +1292,10 @@ body {
 .admin-controls {
   margin-bottom: 2rem;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .admin-button {
@@ -1363,6 +1367,33 @@ body {
 .editable[contenteditable="true"]:focus {
   background-color: #e5e7eb;
   border-color: #7c3aed;
+}
+
+/* Save Button States */
+.save-btn {
+  background-color: #10b981 !important;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #059669 !important;
+}
+
+/* Save Confirmation Animation */
+@keyframes savePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.save-btn.saved {
+  animation: savePulse 0.5s ease-in-out;
 }
 
 /* Footer Logo Cursor */
