@@ -16,6 +16,11 @@ cp script.js public_html/
 cp logo.svg public_html/
 cp *.jpeg public_html/
 
+# Copy API files to public_html
+echo "🔧 Copying API files to public_html..."
+cp -r api/ public_html/
+cp -r data/ public_html/
+
 # Remove any .DS_Store files (macOS specific)
 find public_html -name ".DS_Store" -delete
 
