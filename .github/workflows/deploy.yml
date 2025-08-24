@@ -17,6 +17,14 @@ jobs:
         with:
           node-version: "18"
 
+      - name: List files to be deployed
+        run: |
+          echo "Files in current directory:"
+          ls -la
+          echo ""
+          echo "Files that will be deployed:"
+          find . -type f -not -path "./.git*" -not -path "./public_html/*" -not -name "deploy.sh" -not -name "README.md" -not -name ".gitignore" -not -name ".gitattributes" -not -name ".DS_Store"
+
       - name: Install dependencies (if any)
         run: |
           if [ -f "package.json" ]; then
@@ -37,7 +45,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./public_html/
+          local-dir: ./
           server-dir: /
           exclude: |
             **/.git*
@@ -45,3 +53,10 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/Thumbs.db
+            **/public_html/**
+            **/deploy.sh
+            **/README.md
+            **/.gitignore
+            **/.gitattributes
+          dangerous-clean-slate: false
+          log-level: verbose
