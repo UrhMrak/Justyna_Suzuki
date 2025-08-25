@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Bluehost Deployment Script
-# This script copies all website files to the public_html directory
+# Bluehost Deployment Script (No .htaccess)
+# This script copies all website files to the public_html directory without .htaccess
 
-echo "🚀 Deploying to Bluehost..."
+echo "🚀 Deploying to Bluehost (No .htaccess)..."
 
 # Create public_html directory if it doesn't exist
 mkdir -p public_html
@@ -22,10 +22,6 @@ cp save_data.php public_html/
 cp load_data.php public_html/
 cp test.php public_html/
 
-# Copy configuration files (use the ultra-simple version)
-echo "⚙️ Copying configuration files..."
-cp .htaccess_ultra_simple public_html/.htaccess
-
 # Create data directory and copy initial data
 echo "📊 Setting up data storage..."
 mkdir -p public_html/data
@@ -35,10 +31,10 @@ cp data/*.json public_html/data/
 chmod 755 public_html/data
 chmod 644 public_html/data/*.json
 
-echo "✅ Deployment complete!"
+echo "✅ Deployment complete (No .htaccess)!"
 echo "📂 Files deployed to: public_html/"
 echo "🌐 Upload public_html/ contents to your Bluehost hosting"
 echo "🔐 Admin login: JustynaSuzukiece / qtmc!KetfZT49vG"
 echo "🧪 Test PHP at: yourdomain.com/test.php"
-echo "⚠️  Using ultra-simple .htaccess for maximum Bluehost compatibility"
-echo "💡 If this works, we can gradually add more features back"
+echo "⚠️  No .htaccess file included - PHP should work by default"
+echo "💡 This is the safest option for Bluehost compatibility"

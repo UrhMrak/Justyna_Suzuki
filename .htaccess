@@ -5,37 +5,3 @@ AddHandler application/x-httpd-php .php
 # Set default character encoding
 
 AddDefaultCharset UTF-8
-
-# Enable CORS for API endpoints
-
-<Files "_.php">
-Header always set Access-Control-Allow-Origin "_"
-Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type"
-</Files>
-
-# Handle preflight OPTIONS requests
-
-RewriteEngine On
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.\*)$ $1 [R=200,L]
-
-# Security headers
-
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
-
-# Prevent access to data directory via web
-
-<Directory "data">
-Order deny,allow
-Deny from all
-</Directory>
-
-# Allow access to PHP files in data directory for admin purposes only
-
-<Files "data/\*.php">
-Order allow,deny
-Deny from all
-</Files>
