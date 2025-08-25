@@ -22,9 +22,9 @@ cp save_data.php public_html/
 cp load_data.php public_html/
 cp test.php public_html/
 
-# Copy configuration files
+# Copy configuration files (use the simpler version)
 echo "⚙️ Copying configuration files..."
-cp .htaccess public_html/
+cp .htaccess_simple public_html/.htaccess
 
 # Create data directory and copy initial data
 echo "📊 Setting up data storage..."
@@ -40,3 +40,4 @@ echo "📂 Files deployed to: public_html/"
 echo "🌐 Upload public_html/ contents to your Bluehost hosting"
 echo "🔐 Admin login: JustynaSuzukiece / qtmc!KetfZT49vG"
 echo "🧪 Test PHP at: yourdomain.com/test.php"
+echo "⚠️  Using simplified .htaccess for better Bluehost compatibility"
