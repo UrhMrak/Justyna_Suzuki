@@ -797,3 +797,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Check login status on page load
   checkLoginStatus();
 });
+
+// Auto-logout on page reload/refresh
+window.addEventListener("beforeunload", () => {
+  // Clear login state when page is about to be unloaded (including reloads)
+  localStorage.removeItem("isLoggedIn");
+});
