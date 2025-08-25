@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Login Debug Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: JavaScript Loading</h3>
+        <div id="jsTest">Testing JavaScript...</div>
+        <button onclick="testJavaScript()">Test JavaScript</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Login Modal</h3>
+        <button onclick="openLoginModal()">Open Login Modal</button>
+        <button onclick="testLogin()">Test Login Function</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Console Check</h3>
+        <p>Open browser console (F12) and check for errors</p>
+        <button onclick="generateConsoleMessage()">Generate Console Message</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 4: File Check</h3>
+        <div id="fileCheck">Checking files...</div>
+        <button onclick="checkFiles()">Check Files</button>
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div>
+                    <input type="text" id="username" name="username" placeholder="Username" required />
+                </div>
+                <div>
+                    <input type="password" id="password" name="password" placeholder="Password" required />
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Test 1: JavaScript Loading
+        function testJavaScript() {
+            const testDiv = document.getElementById('jsTest');
+            testDiv.innerHTML = '✅ JavaScript is working!';
+            testDiv.className = 'test-section success';
+        }
+        
+        // Test 2: Login Modal
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+        
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        
+        function testLogin() {
+            const username = 'JustynaSuzukiece';
+            const password = 'qtmc!KetfZT49vG';
+            
+            if (username === 'JustynaSuzukiece' && password === 'qtmc!KetfZT49vG') {
+                alert('✅ Login credentials are correct!');
+            } else {
+                alert('❌ Login credentials are wrong!');
+            }
+        }
+        
+        // Test 3: Console Check
+        function generateConsoleMessage() {
+            console.log('🔍 Debug: Console is working');
+            console.log('🔍 Debug: Username should be: JustynaSuzukiece');
+            console.log('🔍 Debug: Password should be: qtmc!KetfZT49vG');
+            alert('Check browser console (F12) for debug messages');
+        }
+        
+        // Test 4: File Check
+        function checkFiles() {
+            const fileCheck = document.getElementById('fileCheck');
+            const files = [
+                'script.js',
+                'styles.css',
+                'index.html',
+                '.htaccess',
+                'save_data.php',
+                'load_data.php'
+            ];
+            
+            let results = '<h4>File Check Results:</h4>';
+            
+            files.forEach(file => {
+                fetch(file)
+                    .then(response => {
+                        if (response.ok) {
+                            results += `<div style="color: green;">✅ ${file} - Found</div>`;
+                        } else {
+                            results += `<div style="color: red;">❌ ${file} - Not found</div>`;
+                        }
+                        fileCheck.innerHTML = results;
+                    })
+                    .catch(error => {
+                        results += `<div style="color: red;">❌ ${file} - Error: ${error.message}</div>`;
+                        fileCheck.innerHTML = results;
+                    });
+            });
+        }
+        
+        // Auto-run tests
+        window.onload = function() {
+            testJavaScript();
+            checkFiles();
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
