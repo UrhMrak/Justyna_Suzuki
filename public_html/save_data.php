@@ -38,8 +38,36 @@ $content = $data['content'];
 
 // Define the data directory (create if it doesn't exist)
 $dataDir = 'data';
+
+// Check if data directory exists, if not create it
 if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0755, true);
+    $created = mkdir($dataDir, 0755, true);
+    if (!$created) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'Failed to create data directory',
+            'debug' => [
+                'current_dir' => getcwd(),
+                'data_dir' => $dataDir,
+                'permissions' => substr(sprintf('%o', fileperms('.')), -4)
+            ]
+        ]);
+        exit;
+    }
+}
+
+// Check if data directory is writable
+if (!is_writable($dataDir)) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Data directory is not writable',
+        'debug' => [
+            'data_dir' => $dataDir,
+            'permissions' => substr(sprintf('%o', fileperms($dataDir)), -4),
+            'writable' => is_writable($dataDir)
+        ]
+    ]);
+    exit;
 }
 
 // Define file paths based on type
@@ -67,23 +95,43 @@ switch ($type) {
 }
 
 try {
-    // Save the data to the appropriate file
+    // Check if we can write to the file path
+    $testWrite = @file_put_contents($filePath, 'test');
+    if ($testWrite === false) {
+        throw new Exception('Cannot write to file path: ' . $filePath);
+    }
+    
+    // Remove test content
+    @unlink($filePath);
+    
+    // Save the actual data to the appropriate file
     $result = file_put_contents($filePath, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     
     if ($result === false) {
-        throw new Exception('Failed to write to file');
+        throw new Exception('Failed to write to file: ' . $filePath);
     }
     
     echo json_encode([
         'success' => true,
         'message' => 'Data saved successfully',
-        'type' => $type
+        'type' => $type,
+        'debug' => [
+            'file_path' => $filePath,
+            'bytes_written' => $result,
+            'data_size' => strlen(json_encode($content))
+        ]
     ]);
     
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'error' => 'Failed to save data: ' . $e->getMessage()
+        'error' => 'Failed to save data: ' . $e->getMessage(),
+        'debug' => [
+            'file_path' => $filePath,
+            'data_dir_exists' => is_dir($dataDir),
+            'data_dir_writable' => is_writable($dataDir),
+            'current_permissions' => substr(sprintf('%o', fileperms($dataDir)), -4)
+        ]
     ]);
 }
 ?>

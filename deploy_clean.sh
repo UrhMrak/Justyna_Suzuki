@@ -25,6 +25,7 @@ echo "🔧 Copying PHP backend files..."
 cp save_data.php public_html/
 cp load_data.php public_html/
 cp test.php public_html/
+cp test_write.php public_html/
 
 # Create data directory and copy initial data
 echo "📊 Setting up data storage..."
@@ -46,5 +47,6 @@ echo "📂 Files deployed to: public_html/"
 echo "🌐 Upload public_html/ contents to your Bluehost hosting"
 echo "🔐 Admin login: JustynaSuzukiece / qtmc!KetfZT49vG"
 echo "🧪 Test PHP at: yourdomain.com/test.php"
+echo "🔧 Test file permissions at: yourdomain.com/test_write.php"
 echo "✅ No .htaccess file - PHP will work by default on Bluehost"
 echo "💡 This is the safest option for maximum compatibility"
