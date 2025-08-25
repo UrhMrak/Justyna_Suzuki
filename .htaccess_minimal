@@ -1,5 +1,0 @@
-# Enable PHP execution
-AddHandler application/x-httpd-php .php
-
-# Set default character encoding
-AddDefaultCharset UTF-8

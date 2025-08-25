@@ -1,7 +1,1 @@
-# Enable PHP execution - minimal version for Bluehost
 AddHandler application/x-httpd-php .php
-
-# Alternative PHP handler if the first one doesn't work
-<Files "*.php">
-    SetHandler application/x-httpd-php
-</Files>

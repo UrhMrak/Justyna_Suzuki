@@ -65,7 +65,7 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   });
 });
 
-// Navbar shadow change on scroll
+// Navbar shadow change on scroll (background transparency removed)
 window.addEventListener("scroll", () => {
   const navbar = document.querySelector(".navbar");
   if (window.scrollY > 50) {
@@ -75,7 +75,8 @@ window.addEventListener("scroll", () => {
   }
 });
 
-// Form submission handling with EmailJS
+// Form submission handling
+// EmailJS Configuration
 emailjs.init("clul3jbzWuRkHzJCU");
 
 // Contact form submission with EmailJS
@@ -97,6 +98,11 @@ document.getElementById("contactForm").addEventListener("submit", function (e) {
     subject: document.getElementById("subject").value,
     message: document.getElementById("message").value,
   };
+
+  // Debug logging
+  console.log("Template parameters being sent:", templateParams);
+  console.log("Subject value:", templateParams.subject);
+  console.log("Subject length:", templateParams.subject.length);
 
   // Send email using EmailJS
   emailjs.send("service_9ozipbl", "template_cyuy68p", templateParams).then(
@@ -169,6 +175,7 @@ window.addEventListener("scroll", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const images = document.querySelectorAll("img");
   images.forEach((img) => {
+    // Set initial opacity to 1 for logo, carousel images, and Justyna image to prevent flickering
     if (
       img.src.includes("logo.png") ||
       img.src.includes("hero_img2.jpeg") ||
@@ -189,284 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-// ===== FILE-BASED STORAGE SYSTEM =====
-
-// Data storage and management
-class DataManager {
-  constructor() {
-    this.baseUrl = window.location.origin;
-    this.data = {
-      classes: [],
-      about: {},
-      pricing: [],
-      faq: [],
-      calendar: [],
-    };
-    this.isEditing = false;
-  }
-
-  // Load data from server
-  async loadData(type) {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/load_data.php?type=${type}`
-      );
-      const result = await response.json();
-
-      if (result.success) {
-        this.data[type] = result.data;
-        return result.data;
-      } else {
-        console.error(`Failed to load ${type}:`, result.error);
-        return null;
-      }
-    } catch (error) {
-      console.error(`Error loading ${type}:`, error);
-      return null;
-    }
-  }
-
-  // Save data to server
-  async saveData(type, content) {
-    try {
-      const response = await fetch(`${this.baseUrl}/save_data.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: type,
-          content: content,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        this.data[type] = content;
-        return true;
-      } else {
-        console.error(`Failed to save ${type}:`, result.error);
-        return false;
-      }
-    } catch (error) {
-      console.error(`Error saving ${type}:`, error);
-      return false;
-    }
-  }
-
-  // Load all data
-  async loadAllData() {
-    const types = ["classes", "about", "pricing", "faq", "calendar"];
-    for (const type of types) {
-      await this.loadData(type);
-    }
-    this.renderAllData();
-  }
-
-  // Render all data to the page
-  renderAllData() {
-    this.renderClasses();
-    this.renderAbout();
-    this.renderPricing();
-    this.renderFAQ();
-    this.renderCalendar();
-  }
-
-  // Render classes section
-  renderClasses() {
-    const classesGrid = document.getElementById("classesGrid");
-    if (!classesGrid) return;
-
-    classesGrid.innerHTML = "";
-
-    this.data.classes.forEach((classItem, index) => {
-      const classCard = this.createClassCard(classItem, index);
-      classesGrid.appendChild(classCard);
-    });
-  }
-
-  // Create a class card element
-  createClassCard(classItem, index) {
-    const classCard = document.createElement("div");
-    classCard.className = "class-card";
-    classCard.setAttribute("data-class-id", classItem.id || index + 1);
-
-    classCard.innerHTML = `
-      <div class="class-header">
-        <h3 class="editable" contenteditable="false" data-field="title">${
-          classItem.title || "New Class"
-        }</h3>
-      </div>
-      <div class="class-details">
-        <div class="detail">
-          <i class="fas fa-calendar"></i>
-          <span class="editable" contenteditable="false" data-field="date">${
-            classItem.date || "Day"
-          }</span>
-        </div>
-        <div class="detail">
-          <i class="fas fa-clock"></i>
-          <span class="editable" contenteditable="false" data-field="time">${
-            classItem.time || "Time"
-          }</span>
-        </div>
-        <div class="detail">
-          <i class="fas fa-map-marker-alt"></i>
-          <span class="editable" contenteditable="false" data-field="location">${
-            classItem.location || "Location"
-          }</span>
-        </div>
-      </div>
-      <p class="class-description editable" contenteditable="false" data-field="description">
-        ${classItem.description || "Enter class description here."}
-      </p>
-      <a href="#contact" class="class-button open-calendar">More calendar info</a>
-      <div class="admin-actions" style="display: none">
-        <button class="edit-btn admin-action-btn">Edit</button>
-        <button class="delete-btn admin-action-btn">Delete</button>
-      </div>
-    `;
-
-    // Add event listeners
-    this.addClassEventListeners(classCard, index);
-    return classCard;
-  }
-
-  // Add event listeners to class cards
-  addClassEventListeners(classCard, index) {
-    const editBtn = classCard.querySelector(".edit-btn");
-    const deleteBtn = classCard.querySelector(".delete-btn");
-    const editableElements = classCard.querySelectorAll(".editable");
-
-    if (editBtn) {
-      editBtn.addEventListener("click", () =>
-        this.handleClassEdit(classCard, index, editBtn, editableElements)
-      );
-    }
-
-    if (deleteBtn) {
-      deleteBtn.addEventListener("click", () => this.handleClassDelete(index));
-    }
-  }
-
-  // Handle class editing
-  async handleClassEdit(classCard, index, editBtn, editableElements) {
-    if (!this.isEditing) {
-      // Start editing
-      this.isEditing = true;
-      editBtn.textContent = "Save";
-      editBtn.classList.remove("edit-btn");
-      editBtn.classList.add("save-btn");
-      editBtn.style.backgroundColor = "#10b981";
-
-      editableElements.forEach((element) => {
-        element.setAttribute("contenteditable", "true");
-      });
-    } else {
-      // Save changes
-      const updatedClass = this.extractClassData(classCard);
-      this.data.classes[index] = updatedClass;
-
-      const success = await this.saveData("classes", this.data.classes);
-
-      if (success) {
-        this.isEditing = false;
-        editBtn.textContent = "Edit";
-        editBtn.classList.remove("save-btn");
-        editBtn.classList.add("edit-btn");
-        editBtn.style.backgroundColor = "#3b82f6";
-
-        editableElements.forEach((element) => {
-          element.setAttribute("contenteditable", "false");
-        });
-      } else {
-        alert("Failed to save changes. Please try again.");
-      }
-    }
-  }
-
-  // Extract class data from DOM
-  extractClassData(classCard) {
-    const title = classCard.querySelector('[data-field="title"]').textContent;
-    const date = classCard.querySelector('[data-field="date"]').textContent;
-    const time = classCard.querySelector('[data-field="time"]').textContent;
-    const location = classCard.querySelector(
-      '[data-field="location"]'
-    ).textContent;
-    const description = classCard.querySelector(
-      '[data-field="description"]'
-    ).textContent;
-    const id = parseInt(classCard.getAttribute("data-class-id"));
-
-    return { id, title, date, time, location, description };
-  }
-
-  // Handle class deletion
-  async handleClassDelete(index) {
-    if (confirm("Are you sure you want to delete this class?")) {
-      this.data.classes.splice(index, 1);
-      const success = await this.saveData("classes", this.data.classes);
-
-      if (success) {
-        this.renderClasses();
-      } else {
-        alert("Failed to delete class. Please try again.");
-      }
-    }
-  }
-
-  // Add new class
-  async addNewClass() {
-    const newClass = {
-      id: Date.now(),
-      title: "New Class",
-      date: "Day",
-      time: "Time",
-      location: "Location",
-      description: "Enter class description here.",
-    };
-
-    this.data.classes.push(newClass);
-    const success = await this.saveData("classes", this.data.classes);
-
-    if (success) {
-      this.renderClasses();
-    } else {
-      alert("Failed to add new class. Please try again.");
-    }
-  }
-
-  // Render about section
-  renderAbout() {
-    // This would update the about section content if needed
-    // For now, the content is static in HTML
-  }
-
-  // Render pricing section
-  renderPricing() {
-    // This would update the pricing section content if needed
-    // For now, the content is static in HTML
-  }
-
-  // Render FAQ section
-  renderFAQ() {
-    // This would update the FAQ section content if needed
-    // For now, the content is static in HTML
-  }
-
-  // Render calendar
-  renderCalendar() {
-    // This would update the calendar content if needed
-    // For now, the content is static in HTML
-  }
-}
-
-// Initialize data manager
-const dataManager = new DataManager();
-
-// ===== LOGIN SYSTEM =====
 
 // Login Modal Functionality
 const modal = document.getElementById("loginModal");
@@ -527,7 +256,7 @@ loginForm.addEventListener("submit", (e) => {
       // Scroll to classes section
       const classesSection = document.querySelector("#classes");
       if (classesSection) {
-        const offsetTop = classesSection.offsetTop - 80;
+        const offsetTop = classesSection.offsetTop - 80; // Account for fixed navbar
         window.scrollTo({
           top: offsetTop,
           behavior: "smooth",
@@ -572,7 +301,7 @@ function checkLoginStatus() {
   } else {
     // Hide logout button if not logged in
     const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) logoutButton.style.display = "none";
+    logoutButton.style.display = "none";
   }
 }
 
@@ -586,11 +315,11 @@ function logout() {
   const adminActions = document.querySelectorAll(".admin-actions");
   const logoutButton = document.getElementById("logoutButton");
 
-  if (adminControls) adminControls.style.display = "none";
+  adminControls.style.display = "none";
   adminActions.forEach((action) => {
     action.style.display = "none";
   });
-  if (logoutButton) logoutButton.style.display = "none";
+  logoutButton.style.display = "none";
 
   // Reset any editing states
   const editButtons = document.querySelectorAll(".edit-btn");
@@ -610,7 +339,7 @@ function logout() {
   });
 
   // Reset editing state
-  dataManager.isEditing = false;
+  isEditing = false;
 }
 
 // Enable admin features
@@ -620,7 +349,7 @@ function enableAdminFeatures() {
   const logoutButton = document.getElementById("logoutButton");
 
   // Show admin controls
-  if (adminControls) adminControls.style.display = "block";
+  adminControls.style.display = "block";
 
   // Show admin action buttons
   adminActions.forEach((action) => {
@@ -628,16 +357,125 @@ function enableAdminFeatures() {
   });
 
   // Show logout button
-  if (logoutButton) logoutButton.style.display = "block";
+  logoutButton.style.display = "block";
 }
 
-// ===== CALENDAR MODAL =====
+// Admin functionality for editing classes
+let isEditing = false;
+
+// Add new class functionality
+function addNewClass() {
+  const classesGrid = document.getElementById("classesGrid");
+  const newClassId = Date.now(); // Use timestamp as unique ID
+
+  const newClassCard = document.createElement("div");
+  newClassCard.className = "class-card";
+  newClassCard.setAttribute("data-class-id", newClassId);
+
+  newClassCard.innerHTML = `
+    <div class="class-header">
+      <h3 class="editable" contenteditable="false">New Class</h3>
+    </div>
+    <div class="class-details">
+      <div class="detail">
+        <i class="fas fa-calendar"></i>
+        <span class="editable" contenteditable="false">Day</span>
+      </div>
+      <div class="detail">
+        <i class="fas fa-clock"></i>
+        <span class="editable" contenteditable="false">Time</span>
+      </div>
+      <div class="detail">
+        <i class="fas fa-map-marker-alt"></i>
+        <span class="editable" contenteditable="false">Location</span>
+      </div>
+    </div>
+    <p class="class-description editable" contenteditable="false">
+      Enter class description here.
+    </p>
+    <a href="#contact" class="class-button">Enroll Now</a>
+    <div class="admin-actions" style="display: flex;">
+      <button class="edit-btn admin-action-btn">Edit</button>
+      <button class="delete-btn admin-action-btn">Delete</button>
+    </div>
+  `;
+
+  classesGrid.appendChild(newClassCard);
+
+  // Add event listeners to new buttons
+  addClassEventListeners(newClassCard);
+}
+
+// Add event listeners to class cards
+function addClassEventListeners(classCard) {
+  const editBtn = classCard.querySelector(".edit-btn");
+  const deleteBtn = classCard.querySelector(".delete-btn");
+  const editableElements = classCard.querySelectorAll(".editable");
+
+  // Edit functionality
+  editBtn.addEventListener("click", () => {
+    if (!isEditing) {
+      // Start editing
+      isEditing = true;
+      editBtn.textContent = "Save";
+      editBtn.classList.remove("edit-btn");
+      editBtn.classList.add("save-btn");
+      editBtn.style.backgroundColor = "#10b981";
+
+      // Enable editing for all editable elements
+      editableElements.forEach((element) => {
+        element.setAttribute("contenteditable", "true");
+      });
+    } else {
+      // Save changes
+      isEditing = false;
+      editBtn.textContent = "Edit";
+      editBtn.classList.remove("save-btn");
+      editBtn.classList.add("edit-btn");
+      editBtn.style.backgroundColor = "#3b82f6";
+
+      // Disable editing for all editable elements
+      editableElements.forEach((element) => {
+        element.setAttribute("contenteditable", "false");
+      });
+    }
+  });
+
+  // Delete functionality
+  deleteBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to delete this class?")) {
+      classCard.remove();
+    }
+  });
+}
+
+// Add event listeners to existing class cards
+document.addEventListener("DOMContentLoaded", () => {
+  const classCards = document.querySelectorAll(".class-card");
+  classCards.forEach((card) => {
+    addClassEventListeners(card);
+  });
+
+  // Add event listener to add class button
+  const addClassBtn = document.getElementById("addClassBtn");
+  if (addClassBtn) {
+    addClassBtn.addEventListener("click", addNewClass);
+  }
+
+  // Add event listener to logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+
+  // Check login status on page load
+  checkLoginStatus();
+});
 
 // Classes Calendar Modal logic
 (function setupClassesCalendarModal() {
   const modal = document.getElementById("classesCalendarModal");
   if (!modal) return;
-
   const openButtons = document.querySelectorAll(".open-calendar");
   const closeBtn = modal.querySelector(".close-calendar");
   const monthsContainer = document.getElementById("calendarMonths");
@@ -660,18 +498,19 @@ function enableAdminFeatures() {
   }
 
   function defaultMonthDates(date) {
+    // Provide 5 completely empty entries by default
     return [];
   }
 
   function renderMonths() {
     monthsContainer.innerHTML = "";
     const now = new Date();
-
     for (let i = 0; i < 12; i++) {
       const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const key = monthKey(dt);
+      // Load existing data or start empty
       let monthDates = loadMonthData(key) || [];
-
+      // Ensure exactly 5 items
       if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
       while (monthDates.length < 5) monthDates.push("");
 
@@ -687,12 +526,16 @@ function enableAdminFeatures() {
       const list = document.createElement("ul");
       list.className = "calendar-dates";
 
+      // Always show 5 list items, but only display text for user-added content
       for (let idx = 0; idx < 5; idx++) {
         const li = document.createElement("li");
+
         const span = document.createElement("span");
         span.className = "date-text";
-        span.textContent = monthDates[idx] || "";
+        // Only show text if user has actually added content
+        span.textContent = monthDates[idx] || ""; // Show user content or empty
         span.setAttribute("data-index", idx.toString());
+
         li.appendChild(span);
         list.appendChild(li);
       }
@@ -706,7 +549,6 @@ function enableAdminFeatures() {
     const editing =
       editBtn?.dataset.mode === "editing" &&
       localStorage.getItem("isLoggedIn") === "true";
-
     monthsContainer.querySelectorAll(".date-text").forEach((el) => {
       el.setAttribute("contenteditable", editing ? "true" : "false");
       if (editing) {
@@ -715,9 +557,9 @@ function enableAdminFeatures() {
           (e) => {
             const span = e.target;
             const newVal = (span.textContent || "").trim();
+            // Save free-form text without validation
             const wrapper = span.closest(".calendar-month");
             if (!wrapper) return;
-
             const title = wrapper.querySelector("h4")?.textContent || "";
             const dt = new Date(title);
             const key = monthKey(dt);
@@ -735,11 +577,10 @@ function enableAdminFeatures() {
   function openModal() {
     modal.style.display = "block";
     document.body.style.overflow = "hidden";
-
+    // Show edit button only when logged in
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     const adminBar = modal.querySelector(".calendar-admin-actions");
     if (adminBar) adminBar.style.display = loggedIn ? "flex" : "none";
-
     editBtn.dataset.mode = "view";
     editBtn.textContent = "Edit";
     renderMonths();
@@ -756,44 +597,16 @@ function enableAdminFeatures() {
       openModal();
     })
   );
-
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-
+  closeBtn?.addEventListener("click", closeModal);
   window.addEventListener("click", (e) => {
     if (e.target === modal) closeModal();
   });
 
-  if (editBtn) {
-    editBtn.addEventListener("click", () => {
-      if (localStorage.getItem("isLoggedIn") !== "true") return;
-
-      const mode = editBtn.dataset.mode === "editing" ? "view" : "editing";
-      editBtn.dataset.mode = mode;
-      editBtn.textContent = mode === "editing" ? "Save" : "Edit";
-      renderMonths();
-    });
-  }
+  editBtn?.addEventListener("click", () => {
+    if (localStorage.getItem("isLoggedIn") !== "true") return;
+    const mode = editBtn.dataset.mode === "editing" ? "view" : "editing";
+    editBtn.dataset.mode = mode;
+    editBtn.textContent = mode === "editing" ? "Save" : "Edit";
+    renderMonths();
+  });
 })();
-
-// ===== INITIALIZATION =====
-
-// Initialize everything when DOM is loaded
-document.addEventListener("DOMContentLoaded", async () => {
-  // Load all data from server
-  await dataManager.loadAllData();
-
-  // Add event listener to add class button
-  const addClassBtn = document.getElementById("addClassBtn");
-  if (addClassBtn) {
-    addClassBtn.addEventListener("click", () => dataManager.addNewClass());
-  }
-
-  // Add event listener to logout button
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-  }
-
-  // Check login status on page load
-  checkLoginStatus();
-});
