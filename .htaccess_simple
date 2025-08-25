@@ -1,13 +1,10 @@
 # Enable PHP execution
-
 AddHandler application/x-httpd-php .php
 
 # Set default character encoding
-
 AddDefaultCharset UTF-8
 
 # Basic security headers
-
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options nosniff
     Header always set X-Frame-Options DENY
@@ -15,17 +12,15 @@ AddDefaultCharset UTF-8
 </IfModule>
 
 # Enable CORS for PHP files
-
-<Files "_.php">
-<IfModule mod_headers.c>
-Header always set Access-Control-Allow-Origin "_"
-Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type"
-</IfModule>
+<Files "*.php">
+    <IfModule mod_headers.c>
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type"
+    </IfModule>
 </Files>
 
 # Handle OPTIONS requests
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_METHOD} OPTIONS
@@ -33,8 +28,7 @@ Header always set Access-Control-Allow-Headers "Content-Type"
 </IfModule>
 
 # Protect data directory
-
 <Directory "data">
-Order deny,allow
-Deny from all
+    Order deny,allow
+    Deny from all
 </Directory>
