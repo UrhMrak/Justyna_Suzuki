@@ -201,7 +201,7 @@ class DataManager {
       about: {},
       pricing: [],
       faq: [],
-      calendar: [],
+      calendar: []
     };
     this.isEditing = false;
   }
@@ -209,11 +209,9 @@ class DataManager {
   // Load data from server
   async loadData(type) {
     try {
-      const response = await fetch(
-        `${this.baseUrl}/load_data.php?type=${type}`
-      );
+      const response = await fetch(`${this.baseUrl}/load_data.php?type=${type}`);
       const result = await response.json();
-
+      
       if (result.success) {
         this.data[type] = result.data;
         return result.data;
@@ -231,18 +229,18 @@ class DataManager {
   async saveData(type, content) {
     try {
       const response = await fetch(`${this.baseUrl}/save_data.php`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           type: type,
-          content: content,
-        }),
+          content: content
+        })
       });
 
       const result = await response.json();
-
+      
       if (result.success) {
         this.data[type] = content;
         return true;
@@ -258,7 +256,7 @@ class DataManager {
 
   // Load all data
   async loadAllData() {
-    const types = ["classes", "about", "pricing", "faq", "calendar"];
+    const types = ['classes', 'about', 'pricing', 'faq', 'calendar'];
     for (const type of types) {
       await this.loadData(type);
     }
@@ -276,11 +274,11 @@ class DataManager {
 
   // Render classes section
   renderClasses() {
-    const classesGrid = document.getElementById("classesGrid");
+    const classesGrid = document.getElementById('classesGrid');
     if (!classesGrid) return;
 
-    classesGrid.innerHTML = "";
-
+    classesGrid.innerHTML = '';
+    
     this.data.classes.forEach((classItem, index) => {
       const classCard = this.createClassCard(classItem, index);
       classesGrid.appendChild(classCard);
@@ -289,38 +287,30 @@ class DataManager {
 
   // Create a class card element
   createClassCard(classItem, index) {
-    const classCard = document.createElement("div");
-    classCard.className = "class-card";
-    classCard.setAttribute("data-class-id", classItem.id || index + 1);
+    const classCard = document.createElement('div');
+    classCard.className = 'class-card';
+    classCard.setAttribute('data-class-id', classItem.id || index + 1);
 
     classCard.innerHTML = `
       <div class="class-header">
-        <h3 class="editable" contenteditable="false" data-field="title">${
-          classItem.title || "New Class"
-        }</h3>
+        <h3 class="editable" contenteditable="false" data-field="title">${classItem.title || 'New Class'}</h3>
       </div>
       <div class="class-details">
         <div class="detail">
           <i class="fas fa-calendar"></i>
-          <span class="editable" contenteditable="false" data-field="date">${
-            classItem.date || "Day"
-          }</span>
+          <span class="editable" contenteditable="false" data-field="date">${classItem.date || 'Day'}</span>
         </div>
         <div class="detail">
           <i class="fas fa-clock"></i>
-          <span class="editable" contenteditable="false" data-field="time">${
-            classItem.time || "Time"
-          }</span>
+          <span class="editable" contenteditable="false" data-field="time">${classItem.time || 'Time'}</span>
         </div>
         <div class="detail">
           <i class="fas fa-map-marker-alt"></i>
-          <span class="editable" contenteditable="false" data-field="location">${
-            classItem.location || "Location"
-          }</span>
+          <span class="editable" contenteditable="false" data-field="location">${classItem.location || 'Location'}</span>
         </div>
       </div>
       <p class="class-description editable" contenteditable="false" data-field="description">
-        ${classItem.description || "Enter class description here."}
+        ${classItem.description || 'Enter class description here.'}
       </p>
       <a href="#contact" class="class-button open-calendar">More calendar info</a>
       <div class="admin-actions" style="display: none">
@@ -336,18 +326,16 @@ class DataManager {
 
   // Add event listeners to class cards
   addClassEventListeners(classCard, index) {
-    const editBtn = classCard.querySelector(".edit-btn");
-    const deleteBtn = classCard.querySelector(".delete-btn");
-    const editableElements = classCard.querySelectorAll(".editable");
+    const editBtn = classCard.querySelector('.edit-btn');
+    const deleteBtn = classCard.querySelector('.delete-btn');
+    const editableElements = classCard.querySelectorAll('.editable');
 
     if (editBtn) {
-      editBtn.addEventListener("click", () =>
-        this.handleClassEdit(classCard, index, editBtn, editableElements)
-      );
+      editBtn.addEventListener('click', () => this.handleClassEdit(classCard, index, editBtn, editableElements));
     }
 
     if (deleteBtn) {
-      deleteBtn.addEventListener("click", () => this.handleClassDelete(index));
+      deleteBtn.addEventListener('click', () => this.handleClassDelete(index));
     }
   }
 
@@ -356,33 +344,33 @@ class DataManager {
     if (!this.isEditing) {
       // Start editing
       this.isEditing = true;
-      editBtn.textContent = "Save";
-      editBtn.classList.remove("edit-btn");
-      editBtn.classList.add("save-btn");
-      editBtn.style.backgroundColor = "#10b981";
+      editBtn.textContent = 'Save';
+      editBtn.classList.remove('edit-btn');
+      editBtn.classList.add('save-btn');
+      editBtn.style.backgroundColor = '#10b981';
 
       editableElements.forEach((element) => {
-        element.setAttribute("contenteditable", "true");
+        element.setAttribute('contenteditable', 'true');
       });
     } else {
       // Save changes
       const updatedClass = this.extractClassData(classCard);
       this.data.classes[index] = updatedClass;
-
-      const success = await this.saveData("classes", this.data.classes);
-
+      
+      const success = await this.saveData('classes', this.data.classes);
+      
       if (success) {
         this.isEditing = false;
-        editBtn.textContent = "Edit";
-        editBtn.classList.remove("save-btn");
-        editBtn.classList.add("edit-btn");
-        editBtn.style.backgroundColor = "#3b82f6";
+        editBtn.textContent = 'Edit';
+        editBtn.classList.remove('save-btn');
+        editBtn.classList.add('edit-btn');
+        editBtn.style.backgroundColor = '#3b82f6';
 
         editableElements.forEach((element) => {
-          element.setAttribute("contenteditable", "false");
+          element.setAttribute('contenteditable', 'false');
         });
       } else {
-        alert("Failed to save changes. Please try again.");
+        alert('Failed to save changes. Please try again.');
       }
     }
   }
@@ -392,27 +380,23 @@ class DataManager {
     const title = classCard.querySelector('[data-field="title"]').textContent;
     const date = classCard.querySelector('[data-field="date"]').textContent;
     const time = classCard.querySelector('[data-field="time"]').textContent;
-    const location = classCard.querySelector(
-      '[data-field="location"]'
-    ).textContent;
-    const description = classCard.querySelector(
-      '[data-field="description"]'
-    ).textContent;
-    const id = parseInt(classCard.getAttribute("data-class-id"));
+    const location = classCard.querySelector('[data-field="location"]').textContent;
+    const description = classCard.querySelector('[data-field="description"]').textContent;
+    const id = parseInt(classCard.getAttribute('data-class-id'));
 
     return { id, title, date, time, location, description };
   }
 
   // Handle class deletion
   async handleClassDelete(index) {
-    if (confirm("Are you sure you want to delete this class?")) {
+    if (confirm('Are you sure you want to delete this class?')) {
       this.data.classes.splice(index, 1);
-      const success = await this.saveData("classes", this.data.classes);
-
+      const success = await this.saveData('classes', this.data.classes);
+      
       if (success) {
         this.renderClasses();
       } else {
-        alert("Failed to delete class. Please try again.");
+        alert('Failed to delete class. Please try again.');
       }
     }
   }
@@ -421,20 +405,20 @@ class DataManager {
   async addNewClass() {
     const newClass = {
       id: Date.now(),
-      title: "New Class",
-      date: "Day",
-      time: "Time",
-      location: "Location",
-      description: "Enter class description here.",
+      title: 'New Class',
+      date: 'Day',
+      time: 'Time',
+      location: 'Location',
+      description: 'Enter class description here.'
     };
 
     this.data.classes.push(newClass);
-    const success = await this.saveData("classes", this.data.classes);
-
+    const success = await this.saveData('classes', this.data.classes);
+    
     if (success) {
       this.renderClasses();
     } else {
-      alert("Failed to add new class. Please try again.");
+      alert('Failed to add new class. Please try again.');
     }
   }
 
@@ -637,7 +621,7 @@ function enableAdminFeatures() {
 (function setupClassesCalendarModal() {
   const modal = document.getElementById("classesCalendarModal");
   if (!modal) return;
-
+  
   const openButtons = document.querySelectorAll(".open-calendar");
   const closeBtn = modal.querySelector(".close-calendar");
   const monthsContainer = document.getElementById("calendarMonths");
@@ -666,12 +650,12 @@ function enableAdminFeatures() {
   function renderMonths() {
     monthsContainer.innerHTML = "";
     const now = new Date();
-
+    
     for (let i = 0; i < 12; i++) {
       const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const key = monthKey(dt);
       let monthDates = loadMonthData(key) || [];
-
+      
       if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
       while (monthDates.length < 5) monthDates.push("");
 
@@ -703,31 +687,26 @@ function enableAdminFeatures() {
     }
 
     // Toggle contenteditable on spans when editing
-    const editing =
-      editBtn?.dataset.mode === "editing" &&
-      localStorage.getItem("isLoggedIn") === "true";
-
+    const editing = editBtn?.dataset.mode === "editing" && 
+                   localStorage.getItem("isLoggedIn") === "true";
+    
     monthsContainer.querySelectorAll(".date-text").forEach((el) => {
       el.setAttribute("contenteditable", editing ? "true" : "false");
       if (editing) {
-        el.addEventListener(
-          "blur",
-          (e) => {
-            const span = e.target;
-            const newVal = (span.textContent || "").trim();
-            const wrapper = span.closest(".calendar-month");
-            if (!wrapper) return;
-
-            const title = wrapper.querySelector("h4")?.textContent || "";
-            const dt = new Date(title);
-            const key = monthKey(dt);
-            const list = loadMonthData(key) || defaultMonthDates(dt);
-            const idx = parseInt(span.getAttribute("data-index") || "0", 10);
-            list[idx] = newVal || "";
-            saveMonthData(key, list);
-          },
-          { once: true }
-        );
+        el.addEventListener("blur", (e) => {
+          const span = e.target;
+          const newVal = (span.textContent || "").trim();
+          const wrapper = span.closest(".calendar-month");
+          if (!wrapper) return;
+          
+          const title = wrapper.querySelector("h4")?.textContent || "";
+          const dt = new Date(title);
+          const key = monthKey(dt);
+          const list = loadMonthData(key) || defaultMonthDates(dt);
+          const idx = parseInt(span.getAttribute("data-index") || "0", 10);
+          list[idx] = newVal || "";
+          saveMonthData(key, list);
+        }, { once: true });
       }
     });
   }
@@ -735,11 +714,11 @@ function enableAdminFeatures() {
   function openModal() {
     modal.style.display = "block";
     document.body.style.overflow = "hidden";
-
+    
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     const adminBar = modal.querySelector(".calendar-admin-actions");
     if (adminBar) adminBar.style.display = loggedIn ? "flex" : "none";
-
+    
     editBtn.dataset.mode = "view";
     editBtn.textContent = "Edit";
     renderMonths();
@@ -756,9 +735,9 @@ function enableAdminFeatures() {
       openModal();
     })
   );
-
+  
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
-
+  
   window.addEventListener("click", (e) => {
     if (e.target === modal) closeModal();
   });
@@ -766,7 +745,7 @@ function enableAdminFeatures() {
   if (editBtn) {
     editBtn.addEventListener("click", () => {
       if (localStorage.getItem("isLoggedIn") !== "true") return;
-
+      
       const mode = editBtn.dataset.mode === "editing" ? "view" : "editing";
       editBtn.dataset.mode = mode;
       editBtn.textContent = mode === "editing" ? "Save" : "Edit";
@@ -781,7 +760,7 @@ function enableAdminFeatures() {
 document.addEventListener("DOMContentLoaded", async () => {
   // Load all data from server
   await dataManager.loadAllData();
-
+  
   // Add event listener to add class button
   const addClassBtn = document.getElementById("addClassBtn");
   if (addClassBtn) {
