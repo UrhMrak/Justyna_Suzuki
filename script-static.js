@@ -363,60 +363,68 @@ function enableAdminFeatures() {
 // Admin functionality for editing classes
 let isEditing = false;
 
-// API functions for server communication
-async function loadClassesFromServer() {
+// Local storage functions for classes
+function loadClassesFromStorage() {
   try {
-    const response = await fetch("/api/classes");
-    if (!response.ok) throw new Error("Failed to load classes");
-    return await response.json();
+    const stored = localStorage.getItem("suzukiClasses");
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    // Return default classes if nothing stored
+    return [
+      {
+        id: "1",
+        title: "Suzuki Class 1",
+        date: "Saturday 11th of October",
+        time: "9:00 - 10:00",
+        location: "Allegro Suzuki Music School",
+        description:
+          "This is a class for children with parents. Everyone is welcome to join.",
+      },
+      {
+        id: "2",
+        title: "Suzuki Class 2",
+        date: "Saturday 11th of October",
+        time: "10:15 - 11:15",
+        location: "Allegro Suzuki Music School",
+        description:
+          "This is a class for children with parents. Everyone is welcome to join.",
+      },
+    ];
   } catch (error) {
-    console.error("Error loading classes:", error);
+    console.error("Error loading classes from storage:", error);
     return [];
   }
 }
 
-async function saveClassesToServer(classes) {
+function saveClassesToStorage(classes) {
   try {
-    const response = await fetch("/api/classes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(classes),
-    });
-    if (!response.ok) throw new Error("Failed to save classes");
-    return await response.json();
+    localStorage.setItem("suzukiClasses", JSON.stringify(classes));
+    return true;
   } catch (error) {
-    console.error("Error saving classes:", error);
-    throw error;
+    console.error("Error saving classes to storage:", error);
+    return false;
   }
 }
 
-async function loadCalendarFromServer() {
+// Local storage functions for calendar
+function loadCalendarFromStorage() {
   try {
-    const response = await fetch("/api/calendar");
-    if (!response.ok) throw new Error("Failed to load calendar");
-    return await response.json();
+    const stored = localStorage.getItem("suzukiCalendar");
+    return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error("Error loading calendar:", error);
+    console.error("Error loading calendar from storage:", error);
     return {};
   }
 }
 
-async function saveCalendarToServer(calendar) {
+function saveCalendarToStorage(calendar) {
   try {
-    const response = await fetch("/api/calendar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(calendar),
-    });
-    if (!response.ok) throw new Error("Failed to save calendar");
-    return await response.json();
+    localStorage.setItem("suzukiCalendar", JSON.stringify(calendar));
+    return true;
   } catch (error) {
-    console.error("Error saving calendar:", error);
-    throw error;
+    console.error("Error saving calendar to storage:", error);
+    return false;
   }
 }
 
@@ -467,13 +475,13 @@ function renderClassesFromData(classes) {
 }
 
 // Load classes on page load
-async function loadClasses() {
-  const classes = await loadClassesFromServer();
+function loadClasses() {
+  const classes = loadClassesFromStorage();
   renderClassesFromData(classes);
 }
 
 // Add new class functionality
-async function addNewClass() {
+function addNewClass() {
   const newClassData = {
     id: Date.now().toString(),
     title: "New Class",
@@ -492,7 +500,7 @@ async function addNewClass() {
     <div class="class-header">
       <h3 class="editable" contenteditable="false">${newClassData.title}</h3>
     </div>
-    <div class="class-details">
+    <div class="details">
       <div class="detail">
         <i class="fas fa-calendar"></i>
         <span class="editable" contenteditable="false">${newClassData.date}</span>
@@ -522,11 +530,11 @@ async function addNewClass() {
   // Set up calendar buttons for the new class
   setupCalendarButtons();
 
-  // Save the new class to server
+  // Save the new class to storage
   try {
-    const currentClasses = await loadClassesFromServer();
+    const currentClasses = loadClassesFromStorage();
     currentClasses.push(newClassData);
-    await saveClassesToServer(currentClasses);
+    saveClassesToStorage(currentClasses);
   } catch (error) {
     console.error("Error saving new class:", error);
   }
@@ -565,7 +573,7 @@ function addClassEventListeners(classCard) {
         element.setAttribute("contenteditable", "false");
       });
 
-      // Save changes to server
+      // Save changes to storage
       try {
         const classId = classCard.getAttribute("data-class-id");
         const title = classCard.querySelector(".class-header h3").textContent;
@@ -590,12 +598,12 @@ function addClassEventListeners(classCard) {
           description: description,
         };
 
-        const currentClasses = await loadClassesFromServer();
+        const currentClasses = loadClassesFromStorage();
         const classIndex = currentClasses.findIndex((c) => c.id === classId);
 
         if (classIndex !== -1) {
           currentClasses[classIndex] = updatedClass;
-          await saveClassesToServer(currentClasses);
+          saveClassesToStorage(currentClasses);
         }
       } catch (error) {
         console.error("Error saving class changes:", error);
@@ -609,9 +617,9 @@ function addClassEventListeners(classCard) {
     if (confirm("Are you sure you want to delete this class?")) {
       try {
         const classId = classCard.getAttribute("data-class-id");
-        const currentClasses = await loadClassesFromServer();
+        const currentClasses = loadClassesFromStorage();
         const updatedClasses = currentClasses.filter((c) => c.id !== classId);
-        await saveClassesToServer(updatedClasses);
+        saveClassesToStorage(updatedClasses);
         classCard.remove();
       } catch (error) {
         console.error("Error deleting class:", error);
@@ -620,33 +628,6 @@ function addClassEventListeners(classCard) {
     }
   });
 }
-
-// Add event listeners to existing class cards
-document.addEventListener("DOMContentLoaded", async () => {
-  // Initialize calendar modal first
-  calendarModalFunctions = setupClassesCalendarModal();
-
-  // Load classes from server
-  await loadClasses();
-
-  // Set up calendar buttons after classes are loaded
-  setupCalendarButtons();
-
-  // Add event listener to add class button
-  const addClassBtn = document.getElementById("addClassBtn");
-  if (addClassBtn) {
-    addClassBtn.addEventListener("click", addNewClass);
-  }
-
-  // Add event listener to logout button
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-  }
-
-  // Check login status on page load
-  checkLoginStatus();
-});
 
 // Classes Calendar Modal logic
 function setupClassesCalendarModal() {
@@ -661,20 +642,20 @@ function setupClassesCalendarModal() {
     return `${date.getFullYear()}-${date.getMonth()}`;
   }
 
-  async function loadMonthData(key) {
+  function loadMonthData(key) {
     try {
-      const calendarData = await loadCalendarFromServer();
+      const calendarData = loadCalendarFromStorage();
       return calendarData[key] || [];
     } catch {
       return [];
     }
   }
 
-  async function saveMonthData(key, list) {
+  function saveMonthData(key, list) {
     try {
-      const calendarData = await loadCalendarFromServer();
+      const calendarData = loadCalendarFromStorage();
       calendarData[key] = list;
-      await saveCalendarToServer(calendarData);
+      saveCalendarToStorage(calendarData);
     } catch (error) {
       console.error("Error saving calendar data:", error);
     }
@@ -685,7 +666,7 @@ function setupClassesCalendarModal() {
     return [];
   }
 
-  async function renderMonths() {
+  function renderMonths() {
     // Prevent multiple simultaneous renders
     if (isRenderingMonths) {
       console.log("Render already in progress, skipping...");
@@ -714,7 +695,7 @@ function setupClassesCalendarModal() {
         const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
         const key = monthKey(dt);
         // Load existing data or start empty
-        let monthDates = (await loadMonthData(key)) || [];
+        let monthDates = loadMonthData(key) || [];
         // Ensure exactly 5 items
         if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
         while (monthDates.length < 5) monthDates.push("");
@@ -764,7 +745,7 @@ function setupClassesCalendarModal() {
         if (editing) {
           el.addEventListener(
             "blur",
-            async (e) => {
+            (e) => {
               const span = e.target;
               const newVal = (span.textContent || "").trim();
               // Save free-form text without validation
@@ -773,10 +754,10 @@ function setupClassesCalendarModal() {
               const title = wrapper.querySelector("h4")?.textContent || "";
               const dt = new Date(title);
               const key = monthKey(dt);
-              const list = (await loadMonthData(key)) || defaultMonthDates(dt);
+              const list = loadMonthData(key) || defaultMonthDates(dt);
               const idx = parseInt(span.getAttribute("data-index") || "0", 10);
               list[idx] = newVal || "";
-              await saveMonthData(key, list);
+              saveMonthData(key, list);
             },
             { once: true }
           );
@@ -858,3 +839,27 @@ function setupCalendarButtons() {
     });
   }
 }
+
+// Add event listeners to existing class cards
+document.addEventListener("DOMContentLoaded", async () => {
+  // Initialize calendar modal first
+  calendarModalFunctions = setupClassesCalendarModal();
+
+  // Load classes from storage
+  loadClasses();
+
+  // Add event listener to add class button
+  const addClassBtn = document.getElementById("addClassBtn");
+  if (addClassBtn) {
+    addClassBtn.addEventListener("click", addNewClass);
+  }
+
+  // Add event listener to logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+
+  // Check login status on page load
+  checkLoginStatus();
+});

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1",
+    "title": "Suzuki Class 3",
+    "date": "Saturday 11th of October",
+    "time": "9:00 - 10:00",
+    "location": "Allegro Suzuki Music School",
+    "description": "\n        This is a class for children with parents. Everyone is welcome to join. bla"
+  },
+  {
+    "id": "2",
+    "title": "Suzuki Class 2",
+    "date": "Saturday 11th of October",
+    "time": "10:15 - 11:15",
+    "location": "Allegro Suzuki Music School",
+    "description": "This is a class for children with parents. Everyone is welcome to join."
+  }
+]
