@@ -1,147 +1,72 @@
-# Suzuki Early Childhood Education Website
+# Justyna Suzuki Website
 
-A modern, responsive website for Suzuki Early Childhood Education classes, featuring admin functionality for managing class information and calendar data.
+This repository contains the website for Justyna Suzuki, configured for automatic deployment to Bluehost via GitHub Actions.
 
-## Features
+## 🚀 Deployment Setup
 
-- **Responsive Design**: Mobile-first approach with modern UI/UX
-- **Admin Panel**: Secure login system for content management
-- **Editable Classes**: Admin can add, edit, and delete class information
-- **Calendar Management**: Editable calendar popup for class schedules
-- **Server-side Data Persistence**: All editable data is saved to the server
-- **Contact Form**: Integrated contact form with EmailJS
-- **FAQ Section**: Expandable FAQ with smooth animations
+### 1. GitHub Repository Secrets
 
-## Admin Features
+You need to set up the following secrets in your GitHub repository:
 
-When logged in, administrators can:
+1. Go to your GitHub repository
+2. Click on "Settings" → "Secrets and variables" → "Actions"
+3. Add the following repository secrets:
 
-- Edit class titles, dates, times, locations, and descriptions
-- Add new classes
-- Delete existing classes
-- Edit calendar entries for each month
-- All changes are automatically saved to the server
+- `FTP_SERVER`: Your Bluehost FTP server (e.g., `yourdomain.com`)
+- `FTP_USERNAME`: Your Bluehost FTP username
+- `FTP_PASSWORD`: Your Bluehost FTP password
 
-## Installation & Setup
+### 2. Automatic Deployment
 
-### Prerequisites
+The website will automatically deploy to Bluehost whenever you push to the `main` branch.
 
-- Node.js (version 14 or higher)
-- npm (comes with Node.js)
+### 3. Manual Deployment
 
-### Setup Steps
+If you need to deploy manually:
 
-1. **Clone or download the project files**
+```bash
+# Run the deployment script
+./deploy.sh
 
-2. **Install dependencies**
+# Or manually copy files to public_html folder
+cp index.html public_html/
+cp styles.css public_html/
+cp script.js public_html/
+cp logo.svg public_html/
+cp *.jpeg public_html/
+```
 
-   ```bash
-   npm install
-   ```
-
-3. **Start the server**
-
-   ```bash
-   npm start
-   ```
-
-   For development with auto-restart:
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Access the website**
-   - Open your browser and go to `http://localhost:3000`
-   - The server will automatically create the necessary data files
-
-## Admin Login
-
-To access admin features:
-
-1. Click on the logo in the footer
-2. Use these credentials:
-   - **Username**: `JustynaSuzukiece`
-   - **Password**: `qtmc!KetfZT49vG`
-
-## Data Storage
-
-The website now uses a Node.js/Express server to persist data:
-
-- **Classes Data**: Stored in `data/classes.json`
-- **Calendar Data**: Stored in `data/calendar.json`
-- **Automatic Backup**: Data is automatically saved whenever changes are made
-
-## File Structure
+## 📁 Project Structure
 
 ```
 Justyna_Suzuki/
-├── server.js              # Express server for data persistence
-├── package.json           # Node.js dependencies
-├── index.html            # Main HTML file
+├── .github/workflows/     # GitHub Actions deployment workflow
+├── public_html/           # Files that get deployed to Bluehost
+├── index.html            # Main website file
 ├── styles.css            # CSS styles
 ├── script.js             # JavaScript functionality
-├── data/                 # Data storage directory (auto-created)
-│   ├── classes.json     # Classes data
-│   └── calendar.json    # Calendar data
-└── [image files]         # Various images and assets
+├── logo.svg              # Logo file
+├── *.jpeg                # Image files
+├── deploy.sh             # Deployment script
+└── README.md             # This file
 ```
 
-## API Endpoints
+## 🔧 Workflow Details
 
-The server provides these REST endpoints:
+The GitHub Actions workflow:
 
-- `GET /api/classes` - Retrieve all classes
-- `POST /api/classes` - Save all classes
-- `GET /api/calendar` - Retrieve calendar data
-- `POST /api/calendar` - Save calendar data
+1. Triggers on push to `main` branch
+2. Sets up Node.js environment
+3. Installs dependencies (if any)
+4. Builds the project (if needed)
+5. Deploys to Bluehost via FTP
+6. Excludes unnecessary files (.git, node_modules, .DS_Store)
 
-## Technologies Used
+## 📝 Notes
 
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Backend**: Node.js, Express.js
-- **Data Storage**: JSON files with automatic persistence
-- **Styling**: Custom CSS with responsive design
-- **Icons**: Font Awesome
-- **Fonts**: Metropolis (Google Fonts)
-- **Email**: EmailJS for contact form
+- The `public_html/` folder contains only the files needed for the website
+- Source files remain in the root directory for development
+- All deployments go through the `main` branch
+- FTP credentials are stored securely as GitHub secrets
 
-## Development
-
-### Making Changes
-
-- Edit `index.html` for structure changes
-- Modify `styles.css` for styling updates
-- Update `script.js` for functionality changes
-- Server changes go in `server.js`
-
-### Data Persistence
-
-- All editable content is automatically saved to the server
-- Data is stored in JSON format for easy backup and migration
-- The server automatically creates data files if they don't exist
-
-## Deployment
-
-To deploy this website:
-
-1. **Upload all files** to your web server
-2. **Install Node.js** on your server
-3. **Run `npm install`** to install dependencies
-4. **Start the server** with `npm start`
-5. **Set up a process manager** (like PM2) for production use
-
-## Security Notes
-
-- Admin credentials are hardcoded in the frontend (consider moving to environment variables for production)
-- The server includes CORS support for cross-origin requests
-- All data is stored locally on the server
-
-## Support
-
-For technical support or questions about the website functionality, please contact the developer.
-
----
-
-**Developed by Urh Mrak**  
-**For Justyna Bidler - Suzuki Early Childhood Education**
+# Test deployment

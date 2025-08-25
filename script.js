@@ -434,7 +434,7 @@ function renderClassesFromData(classes) {
       <div class="class-header">
         <h3 class="editable" contenteditable="false">${classData.title}</h3>
       </div>
-      <div class="details">
+      <div class="class-details">
         <div class="detail">
           <i class="fas fa-calendar"></i>
           <span class="editable" contenteditable="false">${classData.date}</span>
@@ -461,9 +461,6 @@ function renderClassesFromData(classes) {
     classesGrid.appendChild(classCard);
     addClassEventListeners(classCard);
   });
-
-  // Set up calendar buttons after rendering classes
-  setupCalendarButtons();
 }
 
 // Load classes on page load
@@ -519,9 +516,6 @@ async function addNewClass() {
   classesGrid.appendChild(newClassCard);
   addClassEventListeners(newClassCard);
 
-  // Set up calendar buttons for the new class
-  setupCalendarButtons();
-
   // Save the new class to server
   try {
     const currentClasses = await loadClassesFromServer();
@@ -539,7 +533,7 @@ function addClassEventListeners(classCard) {
   const editableElements = classCard.querySelectorAll(".editable");
 
   // Edit functionality
-  editBtn.addEventListener("click", async () => {
+  editBtn.addEventListener("click", () => {
     if (!isEditing) {
       // Start editing
       isEditing = true;
@@ -564,73 +558,23 @@ function addClassEventListeners(classCard) {
       editableElements.forEach((element) => {
         element.setAttribute("contenteditable", "false");
       });
-
-      // Save changes to server
-      try {
-        const classId = classCard.getAttribute("data-class-id");
-        const title = classCard.querySelector(".class-header h3").textContent;
-        const date = classCard.querySelector(
-          ".detail:nth-child(1) span"
-        ).textContent;
-        const time = classCard.querySelector(
-          ".detail:nth-child(2) span"
-        ).textContent;
-        const location = classCard.querySelector(
-          ".detail:nth-child(3) span"
-        ).textContent;
-        const description =
-          classCard.querySelector(".class-description").textContent;
-
-        const updatedClass = {
-          id: classId,
-          title: title,
-          date: date,
-          time: time,
-          location: location,
-          description: description,
-        };
-
-        const currentClasses = await loadClassesFromServer();
-        const classIndex = currentClasses.findIndex((c) => c.id === classId);
-
-        if (classIndex !== -1) {
-          currentClasses[classIndex] = updatedClass;
-          await saveClassesToServer(currentClasses);
-        }
-      } catch (error) {
-        console.error("Error saving class changes:", error);
-        alert("Failed to save changes. Please try again.");
-      }
     }
   });
 
   // Delete functionality
-  deleteBtn.addEventListener("click", async () => {
+  deleteBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to delete this class?")) {
-      try {
-        const classId = classCard.getAttribute("data-class-id");
-        const currentClasses = await loadClassesFromServer();
-        const updatedClasses = currentClasses.filter((c) => c.id !== classId);
-        await saveClassesToServer(updatedClasses);
-        classCard.remove();
-      } catch (error) {
-        console.error("Error deleting class:", error);
-        alert("Failed to delete class. Please try again.");
-      }
+      classCard.remove();
     }
   });
 }
 
 // Add event listeners to existing class cards
-document.addEventListener("DOMContentLoaded", async () => {
-  // Initialize calendar modal first
-  calendarModalFunctions = setupClassesCalendarModal();
-
-  // Load classes from server
-  await loadClasses();
-
-  // Set up calendar buttons after classes are loaded
-  setupCalendarButtons();
+document.addEventListener("DOMContentLoaded", () => {
+  const classCards = document.querySelectorAll(".class-card");
+  classCards.forEach((card) => {
+    addClassEventListeners(card);
+  });
 
   // Add event listener to add class button
   const addClassBtn = document.getElementById("addClassBtn");
@@ -649,10 +593,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Classes Calendar Modal logic
-function setupClassesCalendarModal() {
+(function setupClassesCalendarModal() {
   const modal = document.getElementById("classesCalendarModal");
   if (!modal) return;
-
+  const openButtons = document.querySelectorAll(".open-calendar");
   const closeBtn = modal.querySelector(".close-calendar");
   const monthsContainer = document.getElementById("calendarMonths");
   const editBtn = document.getElementById("calendarEditBtn");
@@ -661,23 +605,16 @@ function setupClassesCalendarModal() {
     return `${date.getFullYear()}-${date.getMonth()}`;
   }
 
-  async function loadMonthData(key) {
+  function loadMonthData(key) {
     try {
-      const calendarData = await loadCalendarFromServer();
-      return calendarData[key] || [];
+      return JSON.parse(localStorage.getItem(`months-${key}`) || "null");
     } catch {
-      return [];
+      return null;
     }
   }
 
-  async function saveMonthData(key, list) {
-    try {
-      const calendarData = await loadCalendarFromServer();
-      calendarData[key] = list;
-      await saveCalendarToServer(calendarData);
-    } catch (error) {
-      console.error("Error saving calendar data:", error);
-    }
+  function saveMonthData(key, list) {
+    localStorage.setItem(`months-${key}`, JSON.stringify(list));
   }
 
   function defaultMonthDates(date) {
@@ -685,129 +622,87 @@ function setupClassesCalendarModal() {
     return [];
   }
 
-  async function renderMonths() {
-    // Prevent multiple simultaneous renders
-    if (isRenderingMonths) {
-      console.log("Render already in progress, skipping...");
-      return;
-    }
+  function renderMonths() {
+    monthsContainer.innerHTML = "";
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const key = monthKey(dt);
+      // Load existing data or start empty
+      let monthDates = loadMonthData(key) || [];
+      // Ensure exactly 5 items
+      if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
+      while (monthDates.length < 5) monthDates.push("");
 
-    isRenderingMonths = true;
+      const wrapper = document.createElement("div");
+      wrapper.className = "calendar-month";
 
-    try {
-      // Clear the container completely to prevent duplication
-      if (monthsContainer) {
-        // Remove all child elements to ensure complete clearing
-        while (monthsContainer.firstChild) {
-          monthsContainer.removeChild(monthsContainer.firstChild);
-        }
-        console.log("Calendar months container completely cleared");
-      } else {
-        console.error("Months container not found!");
-        return;
-      }
-
-      const now = new Date();
-      console.log("Rendering months starting from:", now.toLocaleString());
-
-      for (let i = 0; i < 12; i++) {
-        const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const key = monthKey(dt);
-        // Load existing data or start empty
-        let monthDates = (await loadMonthData(key)) || [];
-        // Ensure exactly 5 items
-        if (monthDates.length > 5) monthDates = monthDates.slice(0, 5);
-        while (monthDates.length < 5) monthDates.push("");
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "calendar-month";
-
-        const title = document.createElement("h4");
-        title.textContent = dt.toLocaleString(undefined, {
-          month: "long",
-          year: "numeric",
-        });
-
-        const list = document.createElement("ul");
-        list.className = "calendar-dates";
-
-        // Always show 5 list items, but only display text for user-added content
-        for (let idx = 0; idx < 5; idx++) {
-          const li = document.createElement("li");
-
-          const span = document.createElement("span");
-          span.className = "date-text";
-          // Only show text if user has actually added content
-          span.textContent = monthDates[idx] || ""; // Show user content or empty
-          span.setAttribute("data-index", idx.toString());
-
-          li.appendChild(span);
-          list.appendChild(li);
-        }
-
-        wrapper.appendChild(title);
-        wrapper.appendChild(list);
-        monthsContainer.appendChild(wrapper);
-      }
-
-      console.log(
-        "Finished rendering months. Total months rendered:",
-        monthsContainer.children.length
-      );
-
-      // Toggle contenteditable on spans when editing
-      const editing =
-        editBtn?.dataset.mode === "editing" &&
-        localStorage.getItem("isLoggedIn") === "true";
-      monthsContainer.querySelectorAll(".date-text").forEach((el) => {
-        el.setAttribute("contenteditable", editing ? "true" : "false");
-        if (editing) {
-          el.addEventListener(
-            "blur",
-            async (e) => {
-              const span = e.target;
-              const newVal = (span.textContent || "").trim();
-              // Save free-form text without validation
-              const wrapper = span.closest(".calendar-month");
-              if (!wrapper) return;
-              const title = wrapper.querySelector("h4")?.textContent || "";
-              const dt = new Date(title);
-              const key = monthKey(dt);
-              const list = (await loadMonthData(key)) || defaultMonthDates(dt);
-              const idx = parseInt(span.getAttribute("data-index") || "0", 10);
-              list[idx] = newVal || "";
-              await saveMonthData(key, list);
-            },
-            { once: true }
-          );
-        }
+      const title = document.createElement("h4");
+      title.textContent = dt.toLocaleString(undefined, {
+        month: "long",
+        year: "numeric",
       });
-    } catch (error) {
-      console.error("Error rendering months:", error);
-    } finally {
-      isRenderingMonths = false;
+
+      const list = document.createElement("ul");
+      list.className = "calendar-dates";
+
+      // Always show 5 list items, but only display text for user-added content
+      for (let idx = 0; idx < 5; idx++) {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.className = "date-text";
+        // Only show text if user has actually added content
+        span.textContent = monthDates[idx] || ""; // Show user content or empty
+        span.setAttribute("data-index", idx.toString());
+
+        li.appendChild(span);
+        list.appendChild(li);
+      }
+
+      wrapper.appendChild(title);
+      wrapper.appendChild(list);
+      monthsContainer.appendChild(wrapper);
     }
+
+    // Toggle contenteditable on spans when editing
+    const editing =
+      editBtn?.dataset.mode === "editing" &&
+      localStorage.getItem("isLoggedIn") === "true";
+    monthsContainer.querySelectorAll(".date-text").forEach((el) => {
+      el.setAttribute("contenteditable", editing ? "true" : "false");
+      if (editing) {
+        el.addEventListener(
+          "blur",
+          (e) => {
+            const span = e.target;
+            const newVal = (span.textContent || "").trim();
+            // Save free-form text without validation
+            const wrapper = span.closest(".calendar-month");
+            if (!wrapper) return;
+            const title = wrapper.querySelector("h4")?.textContent || "";
+            const dt = new Date(title);
+            const key = monthKey(dt);
+            const list = loadMonthData(key) || defaultMonthDates(dt);
+            const idx = parseInt(span.getAttribute("data-index") || "0", 10);
+            list[idx] = newVal || "";
+            saveMonthData(key, list);
+          },
+          { once: true }
+        );
+      }
+    });
   }
 
   function openModal() {
-    // Prevent multiple modal opens
-    if (modal.style.display === "block") {
-      console.log("Modal already open, skipping...");
-      return;
-    }
-
-    console.log("Opening calendar modal...");
     modal.style.display = "block";
     document.body.style.overflow = "hidden";
-
     // Show edit button only when logged in
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     const adminBar = modal.querySelector(".calendar-admin-actions");
     if (adminBar) adminBar.style.display = loggedIn ? "flex" : "none";
     editBtn.dataset.mode = "view";
     editBtn.textContent = "Edit";
-
-    // Render months only once when opening
     renderMonths();
   }
 
@@ -816,7 +711,12 @@ function setupClassesCalendarModal() {
     document.body.style.overflow = "auto";
   }
 
-  // Set up event listeners for modal elements
+  openButtons.forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal();
+    })
+  );
   closeBtn?.addEventListener("click", closeModal);
   window.addEventListener("click", (e) => {
     if (e.target === modal) closeModal();
@@ -827,34 +727,6 @@ function setupClassesCalendarModal() {
     const mode = editBtn.dataset.mode === "editing" ? "view" : "editing";
     editBtn.dataset.mode = mode;
     editBtn.textContent = mode === "editing" ? "Save" : "Edit";
-
-    // Only re-render if we're switching to editing mode to avoid duplication
-    if (mode === "editing") {
-      console.log("Switching to edit mode, re-rendering months...");
-      renderMonths();
-    }
+    renderMonths();
   });
-
-  // Return the openModal function so it can be called from outside
-  return { openModal };
-}
-
-// Global variable to store the calendar modal functions
-let calendarModalFunctions = null;
-let isRenderingMonths = false; // Flag to prevent multiple simultaneous renders
-
-// Function to set up calendar button event listeners
-function setupCalendarButtons() {
-  const openButtons = document.querySelectorAll(".open-calendar");
-  if (openButtons.length > 0 && calendarModalFunctions) {
-    openButtons.forEach((btn) => {
-      // Remove any existing event listeners
-      btn.removeEventListener("click", calendarModalFunctions.openModal);
-      // Add new event listener
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        calendarModalFunctions.openModal();
-      });
-    });
-  }
-}
+})();
